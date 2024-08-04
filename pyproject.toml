@@ -11,6 +11,7 @@ duckdb = "^1.0.0"
 streamlit = "^1.37.0"
 streamlit-extras = "^0.4.3"
 pandas = "^2.2.2"
+watchdog = "^4.0.1"
 
 
 

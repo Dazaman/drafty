@@ -1,0 +1,36 @@
+import streamlit as st
+from streamlit_extras.colored_header import colored_header
+import draft, mathy
+
+# st.set_page_config(
+#     page_title="Draft 23/24",
+#     page_icon="⚽",
+#     # initial_sidebar_state="collapsed",
+#     layout="wide",
+# )
+
+
+def main():
+    st.title("Drafty 24/25")
+    colored_header(
+        label="Analysing transfers, team selection and random stuff",
+        description="Hindsight is 20/20 and none of this matters, I just had some time this christmas break ..",
+        color_name="violet-70",
+    )
+
+    st.sidebar.markdown(" ## FPL Draft League 24/25")
+    st.sidebar.markdown(
+        "Bringing it back to answer the same question: Why am I so bad at all this ..."
+    )
+    st.sidebar.info(
+        "Previos seasons page is at https://fpldraft.streamlit.app/",
+        icon="ℹ️",
+    )
+
+    pg = st.navigation([st.Page(draft), st.Page(mathy)])
+
+    pg.run()
+
+
+if __name__ == "__main__":
+    main()
