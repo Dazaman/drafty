@@ -2,12 +2,15 @@ import streamlit as st
 from streamlit_extras.colored_header import colored_header
 import draft, mathy
 
-# st.set_page_config(
-#     page_title="Draft 23/24",
-#     page_icon="⚽",
-#     # initial_sidebar_state="collapsed",
-#     layout="wide",
-# )
+st.set_page_config(
+    page_title="Draft 23/24",
+    page_icon="⚽",
+    # initial_sidebar_state="collapsed",
+    layout="wide",
+)
+
+if "role" not in st.session_state:
+    st.session_state.role = None
 
 
 def main():
@@ -27,7 +30,7 @@ def main():
         icon="ℹ️",
     )
 
-    pg = st.navigation([st.Page(draft), st.Page(mathy)])
+    pg = st.navigation([st.Page("draft.py"), st.Page("mathy.py")])
 
     pg.run()
 
