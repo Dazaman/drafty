@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit_extras.colored_header import colored_header
-import draft, mathy
+import drafty.pages.draft as draft, drafty.pages.mathy as mathy
 
 st.set_page_config(
     page_title="Draft 23/24",
