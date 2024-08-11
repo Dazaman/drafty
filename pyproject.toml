@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "dashboard for fpl draft mini league"
 authors = ["Danial Azam <dazam92@gmail.com>"]
 readme = "README.md"
+packages = [
+    { include = "drafty" },
+]
 
 [tool.poetry.dependencies]
 python = ">=3.11,<3.12"
