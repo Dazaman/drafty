@@ -31,7 +31,7 @@ def main():
         icon="ℹ️",
     )
 
-    pg = st.navigation([st.Page("page/draft.py"), st.Page("page/mathy.py")])
+    pg = st.navigation([st.Page("draft.py"), st.Page("mathy.py")])
 
     pg.run()
 
