@@ -1,8 +1,6 @@
 import streamlit as st
 from streamlit_extras.colored_header import colored_header
 
-# from drafty.pages import draft, mathy
-
 st.set_page_config(
     page_title="Draft 24/25",
     page_icon="⚽",
@@ -31,7 +29,7 @@ def main():
         icon="ℹ️",
     )
 
-    pg = st.navigation([st.Page("draft.py"), st.Page("mathy.py")])
+    pg = st.navigation([st.Page("draft.py"), st.Page("transfers.py")])
 
     pg.run()
 
