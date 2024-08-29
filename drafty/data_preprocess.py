@@ -26,9 +26,11 @@ def load_json_to_table(
         data = json.load(json_data)
         for key in keys:
             df = pd.json_normalize(data[key])
-            table = table_name or os.path.splitext(os.path.basename(file_path))[
-                0
-            ].replace("-", "_")
+            # table = table_name or os.path.splitext(os.path.basename(file_path))[
+            #     0
+            # ].replace("-", "_")
+            table = key
+            logger.info(f"Creating table {table} from {file_path}")
             con.sql(f"CREATE TABLE IF NOT EXISTS {table} AS SELECT * FROM df")
 
 
