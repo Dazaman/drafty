@@ -1,6 +1,4 @@
-import argparse
 import os
-import yaml
 import duckdb
 import json
 import pandas as pd
@@ -25,11 +23,8 @@ def load_json_to_table(
     with open(file_path) as json_data:
         data = json.load(json_data)
         for key in keys:
-            df = pd.json_normalize(data[key])
-            # table = table_name or os.path.splitext(os.path.basename(file_path))[
-            #     0
-            # ].replace("-", "_")
-            table = key
+            df = pd.json_normalize(data[key])  # noqa: F841
+            table = table_name or key
             logger.info(f"Creating table {table} from {file_path}")
             con.sql(f"CREATE TABLE IF NOT EXISTS {table} AS SELECT * FROM df")
 
@@ -129,7 +124,7 @@ def fetch_and_load_live_league_data(
         if entry.startswith("team_"):
             history_file = f"data/{entry}/history.json"
             logger.info(f"Loading history data for {entry} - , {history_file}")
-            load_json_to_table(con, history_file, ["history"])
+            load_json_to_table(con, history_file, ["history"], table_name=entry)
             # Drop specific columns and save as CSV
             history_df = pd.read_sql(f"SELECT * FROM {entry}", con)
             history_df = history_df.drop(["rank", "rank_sort"], axis=1)
