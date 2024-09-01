@@ -15,7 +15,7 @@ if "role" not in st.session_state:
 def main():
     st.title("Drafty 24/25")
     colored_header(
-        label="Analysing transfers, team selection and random stuff",
+        label="Keep track of standings, analyse waivers and team selection",
         description="Hindsight is 20/20 and none of this matters, I just had some time this christmas break ..",
         color_name="violet-70",
     )
