@@ -38,9 +38,7 @@ def data_pipeline(refresh: bool, league_code: str, brackets: List[str]):
                 .tolist()
             )
             gameweeks = (
-                con.sql("SELECT DISTINCT event FROM event_status")
-                .df()["event"]
-                .tolist()
+                con.sql("SELECT DISTINCT event FROM status").df()["event"].tolist()
             )
 
         concat_team_points(con=con, team_ids=entries)

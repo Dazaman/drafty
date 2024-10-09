@@ -45,7 +45,7 @@ def get_details(
             2. List of gameweek numbers
     """
     results = con.sql("SELECT DISTINCT entry_id FROM league_entries").df()
-    gw = con.sql("SELECT DISTINCT event FROM event_status").df()
+    gw = con.sql("SELECT DISTINCT event FROM status").df()
 
     with open(r"data_gw", "w") as fp:
         fp.writelines(gw["event"].astype(str).to_list())

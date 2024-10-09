@@ -67,14 +67,12 @@ def standings():
     return standings_ts, cumm_points
 
 
-st.header("Draft Standings")
-
 gw, teams = load_current_gw_teams()
 (bracket_1, bracket_2, bracket_3, bracket_4) = load_bracket_dfs()
 standings_ts, cumm_points = standings()
 
 # Space out the maps so the first one is 2x the size of the other three
-c1, c2 = st.columns((0.7, 0.3))
+c1, c2 = st.columns((0.5, 0.5))
 
 c1.header("Standings by GW Bracket")
 gwbracket = c1.radio(
@@ -135,14 +133,35 @@ elif gwbracket == "Bracket 4":
     )
     update_team_totals([bracket_1, bracket_2, bracket_3, bracket_4], teams)
 
-# Display cumulative team totals
-c2.header(f"Cumulative Earnings up to {gwbracket}")
+# # Display cumulative team totals
+# c2.header(f"Cumulative Earnings up to {gwbracket}")
+# totals_df = pd.DataFrame(
+#     list(st.session_state.team_totals.items()), columns=["Team", "Total"]
+# )
+# totals_df = totals_df.sort_values("Total", ascending=False)
+# c2.dataframe(
+#     totals_df.style.background_gradient(cmap="YlGn"),
+#     hide_index=True,
+#     use_container_width=True,
+# )
+
+# st.sidebar.header(f"Cumulative Earnings up to {gwbracket}")
+# for team, total in st.session_state.team_totals.items():
+#     st.sidebar.markdown(f"**{team}:** ${total}")
+
+# Prepare data for the table
 totals_df = pd.DataFrame(
     list(st.session_state.team_totals.items()), columns=["Team", "Total"]
 )
-totals_df = totals_df.sort_values("Total", ascending=False)
-c2.dataframe(
-    totals_df.style.background_gradient(cmap="YlGn"),
-    hide_index=True,
-    use_container_width=True,
-)
+totals_df["Total"] = totals_df["Total"].apply(
+    lambda x: f"${x}"
+)  # Format totals as currency
+
+# Add this section in the sidebar
+st.sidebar.header(f"Cumulative Earnings up to {gwbracket}")
+st.sidebar.table(totals_df)  # Display as a table
+
+
+c2.header("Timeline")
+c2.caption("** Ignore minus sign, will fix later")
+c2.line_chart(standings_ts, x="Gameweek", y="Position", color="Name")
