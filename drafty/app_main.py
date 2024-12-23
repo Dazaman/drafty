@@ -29,7 +29,13 @@ def main():
         icon="ℹ️",
     )
 
-    pg = st.navigation([st.Page("app_draft.py"), st.Page("app_transfers.py")])
+    pg = st.navigation(
+        [
+            st.Page("app_standings.py", title="Standings"),
+            st.Page("app_transfers.py", title="Transfers"),
+            st.Page("app_selection.py", title="Selection"),
+        ]
+    )
 
     pg.run()
 
