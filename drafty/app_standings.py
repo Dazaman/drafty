@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 
+# Create the line chart with plotly for more customization
+import plotly.express as px
+
 
 def update_team_totals(bracket_dfs, teams):
     st.session_state.team_totals = {
@@ -72,7 +75,7 @@ gw, teams = load_current_gw_teams()
 standings_ts, cumm_points = standings()
 
 # Space out the maps so the first one is 2x the size of the other three
-c1, c2 = st.columns((0.5, 0.5))
+c1, c2 = st.columns((0.35, 0.55))
 
 c1.header("Standings by GW Bracket")
 gwbracket = c1.radio(
@@ -163,5 +166,49 @@ st.sidebar.table(totals_df)  # Display as a table
 
 
 c2.header("Timeline")
-c2.caption("** Ignore minus sign, will fix later")
-c2.line_chart(standings_ts, x="Gameweek", y="Position", color="Name")
+# c2.caption("** Ignore minus sign, will fix later")
+# c2.line_chart(standings_ts, x="Gameweek", y="Position", color="Name")
+
+# First invert the Position values to be positive
+standings_ts["Position"] = standings_ts["Position"].abs()
+
+
+fig = px.line(
+    standings_ts,
+    x="Gameweek",
+    y="Position",
+    color="Name",
+    title="League Position Timeline",
+)
+
+# Invert the y-axis since position 1 should be at the top
+fig.update_layout(
+    yaxis={
+        "autorange": "reversed",
+        "title": "Position",
+        "tickmode": "linear",
+        "tick0": 1,
+        "dtick": 1,
+    },
+    height=600,
+    template="plotly_dark",
+)
+
+# Add images for each team
+for name in standings_ts["Name"].unique():
+    fig.add_layout_image(
+        dict(
+            source=f"static/{name}.png",
+            xref="paper",
+            yref="paper",
+            x=1.02,  # Position image to the right of the chart
+            y=0.5,  # Center vertically
+            sizex=0.1,
+            sizey=0.1,
+            xanchor="left",
+            yanchor="middle",
+        )
+    )
+
+# Replace the existing chart with the new one
+c2.plotly_chart(fig, use_container_width=True)
