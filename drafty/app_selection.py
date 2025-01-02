@@ -107,6 +107,24 @@ with overview_tab:
                 y="bench_pts",
                 title="Bench Points by Team",
                 color="bench_pts",
+                height=600,  # Control height
+                width=800,  # Control width
+                color_continuous_scale=["red", "yellow", "green"],  # Red to green scale
+                text="bench_pts",  # Show values on bars
+            )
+
+            # Improve layout
+            fig.update_layout(
+                xaxis_tickangle=-45,
+                bargap=0.2,
+                margin=dict(b=100, l=80, r=80, t=100),
+                xaxis_title="Team",
+                yaxis_title="Bench Points",
+            )
+
+            # Format hover
+            fig.update_traces(
+                hovertemplate="<b>%{x}</b><br>Bench Points: %{y:.1f}<extra></extra>"
             )
         except Exception as e:
             st.error(f"Error creating chart: {str(e)}")

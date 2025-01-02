@@ -75,7 +75,7 @@ gw, teams = load_current_gw_teams()
 standings_ts, cumm_points = standings()
 
 # Space out the maps so the first one is 2x the size of the other three
-c1, c2 = st.columns((0.30, 0.50))
+c1, c2, c3 = st.columns((0.45, 0.1, 0.45))
 
 c1.header("Standings by GW Bracket")
 gwbracket = c1.radio(
@@ -83,7 +83,7 @@ gwbracket = c1.radio(
     ["Bracket 1", "Bracket 2", "Bracket 3", "Bracket 4"],
     captions=["GW 1 - 10", "GW 11 - 20", "GW 21 - 29", "GW 30 - 38"],
     horizontal=True,
-    index=0,
+    index=1,
 )
 
 if gwbracket == "Bracket 1":
@@ -136,33 +136,43 @@ elif gwbracket == "Bracket 4":
     )
     update_team_totals([bracket_1, bracket_2, bracket_3, bracket_4], teams)
 
-# # Display cumulative team totals
-# c2.header(f"Cumulative Earnings up to {gwbracket}")
-# totals_df = pd.DataFrame(
-#     list(st.session_state.team_totals.items()), columns=["Team", "Total"]
-# )
-# totals_df = totals_df.sort_values("Total", ascending=False)
-# c2.dataframe(
-#     totals_df.style.background_gradient(cmap="YlGn"),
-#     hide_index=True,
-#     use_container_width=True,
-# )
-
-# st.sidebar.header(f"Cumulative Earnings up to {gwbracket}")
-# for team, total in st.session_state.team_totals.items():
-#     st.sidebar.markdown(f"**{team}:** ${total}")
-
-# Prepare data for the table
+# Prepare data for the scoreboard
 totals_df = pd.DataFrame(
     list(st.session_state.team_totals.items()), columns=["Team", "Total"]
 )
-totals_df["Total"] = totals_df["Total"].apply(
-    lambda x: f"${x}"
-)  # Format totals as currency
+totals_df = totals_df.sort_values("Total", ascending=False)
 
-# Add this section in the sidebar
-st.sidebar.header(f"Cumulative Earnings up to {gwbracket}")
-st.sidebar.table(totals_df)  # Display as a table
+c3.header(f"Cumulative Earnings up to {gwbracket} 💰")
+
+container_template = """
+<div style="background: linear-gradient(145deg, #1e1e1e, #2d2d2d); padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+{content}
+</div>
+"""
+
+row_template = """
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; margin: 8px 0; background: linear-gradient(90deg, rgba(45,45,45,0.9) 0%, rgba(45,45,45,0.7) 100%); border-radius: 8px; color: white; font-family: Arial, sans-serif;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="color: #888; font-size: 14px;">#{rank}</span>
+        <span style="font-size: 16px;">⚽ {team}</span>
+    </div>
+    <span style="color: #2ecc71; font-weight: bold; font-size: 18px; font-family: monospace;">{total}</span>
+</div>
+"""
+
+rows = []
+for idx, row in totals_df.iterrows():
+    team = row["Team"]
+    total = (
+        f"${row['Total']}" if isinstance(row["Total"], (int, float)) else row["Total"]
+    )
+    rows.append(row_template.format(rank=idx + 1, team=team, total=total))
+
+html = container_template.format(content="".join(rows))
+c3.markdown(html, unsafe_allow_html=True)
+
+# Footer
+st.caption("Updated as of GW: " + str(gw))
 
 # First invert the Position values to be positive
 standings_ts["Position"] = standings_ts["Position"].abs()
@@ -175,7 +185,6 @@ fig = px.line(
     color="Name",
 )
 
-# Invert the y-axis since position 1 should be at the top
 fig.update_layout(
     yaxis={
         "autorange": "reversed",
@@ -188,21 +197,40 @@ fig.update_layout(
     template="plotly_dark",
 )
 
-# Add images for each team
-for name in standings_ts["Name"].unique():
+# Get final positions for each team
+final_positions = standings_ts.groupby("Name")["Position"].last()
+total_teams = len(final_positions)
+
+# Add images with distributed y-positions
+for i, (name, final_pos) in enumerate(final_positions.items()):
+    # Calculate normalized y position (0 to 1)
+    y_pos = 1 - ((final_pos - 1) / (total_teams - 1)) if total_teams > 1 else 0.5
+
     fig.add_layout_image(
         dict(
             source=f"app/static/{name}.png",
             xref="paper",
             yref="paper",
-            x=1.02,  # Position image to the right of the chart
-            y=0.5,  # Center vertically
-            sizex=0.1,
-            sizey=0.1,
+            x=1.02,  # Moved slightly further right
+            y=y_pos,  # Distributed vertically
+            sizex=0.07,  # Slightly smaller
+            sizey=0.07,  # Keep aspect ratio square
             xanchor="left",
             yanchor="middle",
         )
     )
 
-# Replace the existing chart with the new one
-c2.plotly_chart(fig, use_container_width=True)
+# Add more right margin for images
+fig.update_layout(
+    margin=dict(r=100),
+    legend=dict(
+        x=1.05,
+        xanchor="left",
+        yanchor="middle",
+    ),
+    xaxis=dict(
+        dtick=1,
+    ),
+)
+
+st.plotly_chart(fig, use_container_width=True)
