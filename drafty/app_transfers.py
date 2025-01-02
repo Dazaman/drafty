@@ -95,15 +95,15 @@ with blunders:
             f"{worst_transfer['Net Points']} pts",
             help=f"Lost {abs(worst_transfer['Net Points'])} points",
             delta=int(worst_transfer["Net Points"]),
-            delta_color="inverse",
+            # delta_color="inverse",
         )
     with col3:
         st.metric(
-            "Most Unfortunate Manager",
+            "Most Unfortunate Move",
             worst_transfer["Team Name"],
             help=f"-{abs(worst_transfer['Net Points'])} pts",
             delta=int(-abs(worst_transfer["Net Points"])),
-            delta_color="inverse",
+            # delta_color="inverse",
         )
     st.dataframe(
         bottom_n.style.background_gradient(cmap="YlOrRd_r", subset=["Net Points"]),
@@ -139,7 +139,7 @@ with smart_moves:
         )
     with col3:
         st.metric(
-            "Smartest Manager",
+            "Smartest Transfer",
             best_transfer["Team Name"],
             help=f"+{best_transfer['Net Points']} pts",
             delta=int(best_transfer["Net Points"]),

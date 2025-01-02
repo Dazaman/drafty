@@ -156,8 +156,6 @@ with overview_tab:
 
 with detail_tab:
 
-    # st.write("Available columns in bench_pts:", bench_pts.columns.tolist())
-
     # Filters
     col1, col2 = st.columns([2, 1])
     with col1:

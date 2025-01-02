@@ -75,7 +75,7 @@ gw, teams = load_current_gw_teams()
 standings_ts, cumm_points = standings()
 
 # Space out the maps so the first one is 2x the size of the other three
-c1, c2 = st.columns((0.35, 0.55))
+c1, c2 = st.columns((0.30, 0.50))
 
 c1.header("Standings by GW Bracket")
 gwbracket = c1.radio(
@@ -164,11 +164,6 @@ totals_df["Total"] = totals_df["Total"].apply(
 st.sidebar.header(f"Cumulative Earnings up to {gwbracket}")
 st.sidebar.table(totals_df)  # Display as a table
 
-
-c2.header("Timeline")
-# c2.caption("** Ignore minus sign, will fix later")
-# c2.line_chart(standings_ts, x="Gameweek", y="Position", color="Name")
-
 # First invert the Position values to be positive
 standings_ts["Position"] = standings_ts["Position"].abs()
 
@@ -178,7 +173,6 @@ fig = px.line(
     x="Gameweek",
     y="Position",
     color="Name",
-    title="League Position Timeline",
 )
 
 # Invert the y-axis since position 1 should be at the top
@@ -198,7 +192,7 @@ fig.update_layout(
 for name in standings_ts["Name"].unique():
     fig.add_layout_image(
         dict(
-            source=f"static/{name}.png",
+            source=f"app/static/{name}.png",
             xref="paper",
             yref="paper",
             x=1.02,  # Position image to the right of the chart
