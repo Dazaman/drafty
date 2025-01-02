@@ -5,10 +5,10 @@ import plotly.express as px
 
 def load_current_gw_teams():
     # Read current gw, use as gw[0]
-    with open(r"data_gw", "r") as fp:
+    with open(r"drafty/data_gw", "r") as fp:
         gw = fp.readlines()
     # Read in team names
-    with open(r"data_teams", "r") as fp:
+    with open(r"drafty/data_teams", "r") as fp:
         t = fp.readlines()
         teams = [i.strip() for i in t]
 
@@ -16,8 +16,8 @@ def load_current_gw_teams():
 
 
 def transactions(col_names, int_cols):
-    top_n = pd.read_csv("data/top_df.csv")
-    bottom_n = pd.read_csv("data/bottom_df.csv")
+    top_n = pd.read_csv("drafty/data/top_df.csv")
+    bottom_n = pd.read_csv("drafty/data/bottom_df.csv")
 
     top_n = top_n.rename(columns=col_names)
     bottom_n = bottom_n.rename(columns=col_names)
@@ -29,8 +29,8 @@ def transactions(col_names, int_cols):
 
 
 def bench():
-    bench_pts = pd.read_csv("data/bench_pts.csv")
-    total_bench_pts = pd.read_csv("data/total_bench_pts.csv")
+    bench_pts = pd.read_csv("drafty/data/bench_pts.csv")
+    total_bench_pts = pd.read_csv("drafty/data/total_bench_pts.csv")
 
     return bench_pts, total_bench_pts
 

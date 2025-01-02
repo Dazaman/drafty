@@ -47,10 +47,10 @@ def get_details(
     results = con.sql("SELECT DISTINCT entry_id FROM league_entries").df()
     gw = con.sql("SELECT DISTINCT event FROM status").df()
 
-    with open(r"data_gw", "w") as fp:
+    with open(r"drafty/data_gw", "w") as fp:
         fp.writelines(gw["event"].astype(str).to_list())
 
-    with open(r"data_teams", "w") as fp:
+    with open(r"drafty/data_teams", "w") as fp:
         fp.write("\n".join(results["entry_id"].astype(str).to_list()))
 
     return results["entry_id"].to_list(), gw["event"].to_list()
@@ -76,10 +76,10 @@ def fetch_and_load_static_league_data(
 
     # Load main data files
     data_files = {
-        "data/details.json": ["league_entries", "league", "standings"],
-        "data/event-status.json": ["status"],
-        "data/bootstrap-static.json": ["elements"],
-        "data/transactions.json": ["transactions"],
+        "drafty/data/details.json": ["league_entries", "league", "standings"],
+        "drafty/data/event-status.json": ["status"],
+        "drafty/data/bootstrap-static.json": ["elements"],
+        "drafty/data/transactions.json": ["transactions"],
     }
 
     for file_path, keys in data_files.items():
@@ -120,21 +120,21 @@ def fetch_and_load_live_league_data(
         get_gw_data(gw=gw)
 
     # Load team history data
-    for entry in os.listdir("data"):
+    for entry in os.listdir("drafty/data"):
         if entry.startswith("team_"):
-            history_file = f"data/{entry}/history.json"
+            history_file = f"drafty/data/{entry}/history.json"
             logger.info(f"Loading history data for {entry} - , {history_file}")
             load_json_to_table(con, history_file, ["history"], table_name=entry)
             # Drop specific columns and save as CSV
             history_df = pd.read_sql(f"SELECT * FROM {entry}", con)
             history_df = history_df.drop(["rank", "rank_sort"], axis=1)
-            history_df.to_csv(f"data/{entry}/history.csv", index=False)
+            history_df.to_csv(f"drafty/data/{entry}/history.csv", index=False)
 
     # Load gameweek live data
     gw_live_data = []
-    for file in os.listdir("data/gw"):
+    for file in os.listdir("drafty/data/gw"):
         if file.endswith(".json"):
-            with open(f"data/gw/{file}") as json_data:
+            with open(f"drafty/data/gw/{file}") as json_data:
                 data = json.load(json_data)
                 gw = file.split("_")[0]
                 for element_id, element_data in data["elements"].items():
@@ -144,15 +144,15 @@ def fetch_and_load_live_league_data(
                     gw_live_data.append(row)
 
     gw_live_df = pd.DataFrame(gw_live_data)
-    gw_live_df.to_csv("data/gw_live.csv", index=False)
+    gw_live_df.to_csv("drafty/data/gw_live.csv", index=False)
     con.sql(
-        "CREATE TABLE IF NOT EXISTS gw_live AS FROM read_csv('data/gw_live.csv', auto_detect=TRUE)"
+        "CREATE TABLE IF NOT EXISTS gw_live AS FROM read_csv('drafty/data/gw_live.csv', auto_detect=TRUE)"
     )
 
     # Load gameweek event data
     gw_event_data = []
     for team_id in entries:
-        team_dir = f"data/team_{team_id}"
+        team_dir = f"drafty/data/team_{team_id}"
         for file in os.listdir(team_dir):
             if file.endswith("event.json"):
                 with open(f"{team_dir}/{file}") as json_data:
@@ -167,7 +167,7 @@ def fetch_and_load_live_league_data(
     gw_event_df = gw_event_df.drop(
         ["is_captain", "is_vice_captain", "multiplier"], axis=1
     )
-    gw_event_df.to_csv("data/gw_event.csv", index=False)
+    gw_event_df.to_csv("drafty/data/gw_event.csv", index=False)
     con.sql(
-        "CREATE TABLE IF NOT EXISTS gw_event AS FROM read_csv('data/gw_event.csv', auto_detect=TRUE)"
+        "CREATE TABLE IF NOT EXISTS gw_event AS FROM read_csv('drafty/data/gw_event.csv', auto_detect=TRUE)"
     )

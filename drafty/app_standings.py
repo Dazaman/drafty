@@ -22,10 +22,10 @@ def update_team_totals(bracket_dfs, teams):
 # @st.cache_data
 def load_current_gw_teams():
     # Read current gw, use as gw[0]
-    with open(r"data_gw", "r") as fp:
+    with open(r"drafty/data_gw", "r") as fp:
         gw = fp.readlines()
     # Read in team names
-    with open(r"data_teams", "r") as fp:
+    with open(r"drafty/data_teams", "r") as fp:
         t = fp.readlines()
         teams = [i.strip() for i in t]
 
@@ -34,19 +34,19 @@ def load_current_gw_teams():
 
 # @st.cache_data
 def load_bracket_dfs():
-    bracket_1 = pd.read_csv("data/results_1.csv")
+    bracket_1 = pd.read_csv("drafty/data/results_1.csv")
     bracket_1["points"] = bracket_1["points"].astype(int)
     bracket_1 = bracket_1.sort_values(by="points", ascending=False)
 
-    bracket_2 = pd.read_csv("data/results_2.csv")
+    bracket_2 = pd.read_csv("drafty/data/results_2.csv")
     bracket_2["points"] = bracket_2["points"].astype(int)
     bracket_2 = bracket_2.sort_values(by="points", ascending=False)
 
-    bracket_3 = pd.read_csv("data/results_3.csv")
+    bracket_3 = pd.read_csv("drafty/data/results_3.csv")
     bracket_3["points"] = bracket_3["points"].astype(int)
     bracket_3 = bracket_3.sort_values(by="points", ascending=False)
 
-    bracket_4 = pd.read_csv("data/results_4.csv")
+    bracket_4 = pd.read_csv("drafty/data/results_4.csv")
     bracket_4["points"] = bracket_4["points"].astype(int)
     bracket_4 = bracket_4.sort_values(by="points", ascending=False)
 
@@ -60,12 +60,12 @@ def standings():
         "pos": "Position",
         "name": "Name",
     }
-    standings_ts = pd.read_csv("data/standings_ts.csv")
+    standings_ts = pd.read_csv("drafty/data/standings_ts.csv")
     standings_ts["pos"] = standings_ts["pos"] * -1
     standings_ts = standings_ts.rename(columns=col_names)
     standings_ts["Gameweek"] = standings_ts["Gameweek"].astype(int)
 
-    cumm_points = pd.read_csv("data/cumm_points.csv")
+    cumm_points = pd.read_csv("drafty/data/cumm_points.csv")
 
     return standings_ts, cumm_points
 

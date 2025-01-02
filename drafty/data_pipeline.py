@@ -71,7 +71,7 @@ def main(cli_args: List[str]):
     refresh = args.refresh
 
     # Read the config file
-    with open("config.yaml", "r") as config_file:
+    with open("drafty/config.yaml", "r") as config_file:
         config = yaml.safe_load(config_file)
 
     brackets = config.get("brackets")
@@ -82,7 +82,7 @@ def main(cli_args: List[str]):
         return
 
     # Create directories if they don't exist
-    os.makedirs("data/GW", exist_ok=True)
+    os.makedirs("drafty/data/GW", exist_ok=True)
 
     data_pipeline(refresh=refresh, league_code=league_code, brackets=brackets)
 
