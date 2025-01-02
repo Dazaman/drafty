@@ -75,7 +75,7 @@ gw, teams = load_current_gw_teams()
 standings_ts, cumm_points = standings()
 
 # Space out the maps so the first one is 2x the size of the other three
-c1, c2, c3 = st.columns((0.45, 0.1, 0.45))
+c1, c2, c3 = st.columns((0.50, 0.05, 0.50))
 
 c1.header("Standings by GW Bracket")
 gwbracket = c1.radio(
@@ -142,7 +142,7 @@ totals_df = pd.DataFrame(
 )
 totals_df = totals_df.sort_values("Total", ascending=False)
 
-c3.header(f"Cumulative Earnings up to {gwbracket} 💰")
+c3.header(f"Earnings up to {gwbracket} 💰")
 
 container_template = """
 <div style="background: linear-gradient(145deg, #1e1e1e, #2d2d2d); padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
@@ -151,7 +151,7 @@ container_template = """
 """
 
 row_template = """
-<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; margin: 8px 0; background: linear-gradient(90deg, rgba(45,45,45,0.9) 0%, rgba(45,45,45,0.7) 100%); border-radius: 8px; color: white; font-family: Arial, sans-serif;">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 20px; margin: 4px 0; background: linear-gradient(90deg, rgba(45,45,45,0.9) 0%, rgba(45,45,45,0.7) 100%); border-radius: 8px; color: white; font-family: Arial, sans-serif;">
     <div style="display: flex; align-items: center; gap: 10px;">
         <span style="color: #888; font-size: 14px;">#{rank}</span>
         <span style="font-size: 16px;">⚽ {team}</span>
@@ -176,6 +176,7 @@ st.sidebar.caption("Updated as of GW: " + str(gw))
 
 st.markdown("<br><br>", unsafe_allow_html=True)
 
+st.header(f"Timeline of Standings")
 # First invert the Position values to be positive
 standings_ts["Position"] = standings_ts["Position"].abs()
 
