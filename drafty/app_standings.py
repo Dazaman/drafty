@@ -195,8 +195,20 @@ fig.update_layout(
         "tick0": 1,
         "dtick": 1,
     },
-    height=600,
+    xaxis=dict(
+        dtick=1,
+    ),
+    height=400,
+    margin=dict(l=40, r=40, t=40, b=40),  # Tighter margins
     template="plotly_dark",
+    legend=dict(
+        orientation="h",  # Horizontal legend
+        yanchor="bottom",
+        y=1.02,
+        xanchor="right",
+        x=1,
+    ),
+    font=dict(size=12),  # Smaller font
 )
 
 # Get final positions for each team
@@ -222,17 +234,14 @@ for i, (name, final_pos) in enumerate(final_positions.items()):
         )
     )
 
-# Add more right margin for images
-fig.update_layout(
-    margin=dict(r=100),
-    legend=dict(
-        x=1.05,
-        xanchor="left",
-        yanchor="middle",
-    ),
-    xaxis=dict(
-        dtick=1,
-    ),
-)
+# # Add more right margin for images
+# fig.update_layout(
+#     margin=dict(r=100),
+#     legend=dict(
+#         x=1.05,
+#         xanchor="left",
+#         yanchor="middle",
+#     ),
+# )
 
 st.plotly_chart(fig, use_container_width=True)

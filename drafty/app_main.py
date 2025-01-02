@@ -20,6 +20,7 @@ def main():
         color_name="violet-70",
     )
 
+    st.sidebar.image("drafty/img/DPL.png", use_column_width=True)
     st.sidebar.markdown(" ## FPL Draft League 24/25")
     st.sidebar.markdown(
         "Bringing it back to answer the same question: Why am I so bad at all this ..."
