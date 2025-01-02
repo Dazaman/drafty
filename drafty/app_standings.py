@@ -172,7 +172,9 @@ html = container_template.format(content="".join(rows))
 c3.markdown(html, unsafe_allow_html=True)
 
 # Footer
-st.caption("Updated as of GW: " + str(gw))
+st.sidebar.caption("Updated as of GW: " + str(gw))
+
+st.markdown("<br><br>", unsafe_allow_html=True)
 
 # First invert the Position values to be positive
 standings_ts["Position"] = standings_ts["Position"].abs()
