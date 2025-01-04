@@ -73,6 +73,13 @@ def top_n_transfers(con):
 
     df_stacked = pd.concat(df_list)
 
+    # Convert net_pts to numeric, handling any non-numeric values
+    df_stacked["net_pts"] = pd.to_numeric(df_stacked["net_pts"], errors="coerce")
+
+    # Filter out any NaN values that resulted from the conversion
+    df_stacked = df_stacked.dropna(subset=["net_pts"])
+
+    # Now we can safely use nlargest
     top_df = df_stacked.nlargest(10, "net_pts")
     top_df.to_csv("drafty/data/top_df.csv", index=False)
 
