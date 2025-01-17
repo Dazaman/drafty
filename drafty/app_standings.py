@@ -143,6 +143,7 @@ totals_df = pd.DataFrame(
 totals_df = totals_df.sort_values("Total", ascending=False)
 
 c3.header(f"Earnings up to {gwbracket} 💰")
+c3.caption("(Provisional for latest GW Bracket)")
 
 container_template = """
 <div style="background: linear-gradient(145deg, #1e1e1e, #2d2d2d); padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
