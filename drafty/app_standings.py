@@ -83,7 +83,7 @@ gwbracket = c1.radio(
     ["Bracket 1", "Bracket 2", "Bracket 3", "Bracket 4"],
     captions=["GW 1 - 10", "GW 11 - 20", "GW 21 - 29", "GW 30 - 38"],
     horizontal=True,
-    index=1,
+    index=2,
 )
 
 if gwbracket == "Bracket 1":
