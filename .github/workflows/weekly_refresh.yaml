@@ -28,8 +28,9 @@ jobs:
       - name: Run refresh script
         run: |
           echo "Refreshing the Data"
-          rm -r drafty/data/
-          rm drapht.db
+          rm -rf drafty/data/ || true
+          rm -f drafty.db || true
+          mkdir -p drafty/data/
           poetry run python drafty/data_pipeline.py --refresh True
           
       - name: Commit and push changes
