@@ -1,0 +1,41 @@
+name: Weekly Data Refresh
+
+on:
+  schedule:
+    # Runs at 00:00 UTC every Tuesday
+    - cron: '0 0 * * 2'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        
+      - name: Install dependencies
+        run: |
+          poetry lock
+          poetry install
+        
+      - name: Run refresh script
+        run: |
+          echo "Refreshing the Data"
+          rm -r drafty/data/
+          rm drapht.db
+          poetry run python drafty/data_pipeline.py --refresh True
+          
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add drafty/data/ drafty.db
+          git commit -m "Weekly data refresh" || exit 0
+          git push
