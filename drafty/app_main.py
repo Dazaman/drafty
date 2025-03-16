@@ -4,7 +4,7 @@ from streamlit_extras.colored_header import colored_header
 st.set_page_config(
     page_title="Draft 24/25",
     page_icon="⚽",
-    # initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
     layout="wide",
 )
 
