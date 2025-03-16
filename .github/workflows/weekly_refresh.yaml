@@ -9,6 +9,9 @@ on:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    # Add permission configuration
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       
@@ -39,4 +42,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add drafty/data/ drafty.db
           git commit -m "Weekly data refresh" || exit 0
-          git push
+          # Modified git push to use token
+          git push origin HEAD:main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
