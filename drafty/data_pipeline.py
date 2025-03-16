@@ -82,7 +82,7 @@ def main(cli_args: List[str]):
         return
 
     # Create directories if they don't exist
-    os.makedirs("drafty/data/GW", exist_ok=True)
+    os.makedirs("drafty/data/gw", exist_ok=True)  # Changed GW to gw
 
     data_pipeline(refresh=refresh, league_code=league_code, brackets=brackets)
 

@@ -78,7 +78,10 @@ def get_gw_data(gw):
     api_endpoints = [f"event/{gw}/live"]
 
     base_url = "https://draft.premierleague.com/api/"
-    json_files = [f"drafty/data/gw/{gw}_live.json"]
+    gw_dir = "drafty/data/gw"
+    os.makedirs(gw_dir, exist_ok=True)  # Create gw directory if it doesn't exist
+
+    json_files = [f"{gw_dir}/{gw}_live.json"]
     apis = [f"{base_url}{endpoint}" for endpoint in api_endpoints]
 
     get_json(json_files=json_files, apis=apis)
