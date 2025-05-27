@@ -23,8 +23,8 @@ Faaez,3,7
 Danial,4,1
 Daniyal,4,2
 Noman,4,3
-Feroze,4,4
 Kumail,4,4
+Feroze,4,4
 Faaiz,4,6
 Faaez,4,7
 Danial,5,1
@@ -64,8 +64,8 @@ Faaiz,9,6
 Faaez,9,7
 Kumail,10,1
 Danial,10,2
-Feroze,10,3
 Noman,10,3
+Feroze,10,3
 Daniyal,10,5
 Faaiz,10,6
 Faaez,10,7
@@ -258,3 +258,10 @@ Feroze,37,4
 Daniyal,37,5
 Faaiz,37,6
 Faaez,37,7
+Noman,38,1
+Kumail,38,2
+Danial,38,3
+Feroze,38,4
+Daniyal,38,5
+Faaiz,38,6
+Faaez,38,7
