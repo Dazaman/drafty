@@ -46,11 +46,7 @@ def load_bracket_dfs():
     bracket_3["points"] = bracket_3["points"].astype(int)
     bracket_3 = bracket_3.sort_values(by="points", ascending=False)
 
-    bracket_4 = pd.read_csv("drafty/data/results_4.csv")
-    bracket_4["points"] = bracket_4["points"].astype(int)
-    bracket_4 = bracket_4.sort_values(by="points", ascending=False)
-
-    return bracket_1, bracket_2, bracket_3, bracket_4
+    return bracket_1, bracket_2, bracket_3
 
 
 # @st.cache_data
@@ -71,7 +67,7 @@ def standings():
 
 
 gw, teams = load_current_gw_teams()
-(bracket_1, bracket_2, bracket_3, bracket_4) = load_bracket_dfs()
+(bracket_1, bracket_2, bracket_3) = load_bracket_dfs()
 standings_ts, cumm_points = standings()
 
 # Space out the maps so the first one is 2x the size of the other three
@@ -80,8 +76,8 @@ c1, c2, c3 = st.columns((0.50, 0.05, 0.50))
 c1.header("Standings by GW Bracket")
 gwbracket = c1.radio(
     "Choose GW Bracket. **\$50** Bracket Winner, **\$25** for Runner-up",
-    ["Bracket 1", "Bracket 2", "Bracket 3", "Bracket 4"],
-    captions=["GW 1 - 10", "GW 11 - 20", "GW 21 - 29", "GW 30 - 38"],
+    ["Bracket 1", "Bracket 2", "Bracket 3"],
+    captions=["GW 1 - 13", "GW 14 - 26", "GW 27 - 38"],
     horizontal=True,
     index=2,
 )
@@ -123,18 +119,6 @@ elif gwbracket == "Bracket 3":
         use_container_width=True,
     )
     update_team_totals([bracket_1, bracket_2, bracket_3], teams)
-elif gwbracket == "Bracket 4":
-    c1.dataframe(
-        bracket_4.style.background_gradient(cmap="YlGn"),
-        column_config={
-            "img": st.column_config.ImageColumn(
-                "DP", help="Streamlit app preview screenshots"
-            )
-        },
-        hide_index=True,
-        use_container_width=True,
-    )
-    update_team_totals([bracket_1, bracket_2, bracket_3, bracket_4], teams)
 
 # Prepare data for the scoreboard
 totals_df = pd.DataFrame(
