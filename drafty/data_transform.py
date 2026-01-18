@@ -72,7 +72,7 @@ def top_n_transfers(con):
             df_list.append(df)
 
     df_stacked = pd.concat(df_list)
-    df_stacked['net_pts'] = pd.to_numeric(df_stacked['net_pts'])
+    df_stacked["net_pts"] = pd.to_numeric(df_stacked["net_pts"])
 
     top_df = df_stacked.nlargest(10, "net_pts")
     top_df.to_csv("drafty/data/top_df.csv", index=False)
