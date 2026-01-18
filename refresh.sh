@@ -1,7 +1,7 @@
 echo "Refreshing the Data"
 
 rm -r drafty/data/
-rm drapht.db
+rm drafty.db
 
 poetry run python drafty/data_pipeline.py --refresh True
 
