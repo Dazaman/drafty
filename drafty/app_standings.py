@@ -75,7 +75,7 @@ c1, c2, c3 = st.columns((0.50, 0.05, 0.50))
 
 c1.header("Standings by GW Bracket")
 gwbracket = c1.radio(
-    "Choose GW Bracket. **\$50** Bracket Winner, **\$25** for Runner-up",
+    "Choose GW Bracket. **$50** Bracket Winner, **$25** for Runner-up",
     ["Bracket 1", "Bracket 2", "Bracket 3"],
     captions=["GW 1 - 13", "GW 14 - 26", "GW 27 - 38"],
     horizontal=True,
