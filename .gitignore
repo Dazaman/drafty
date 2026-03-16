@@ -159,4 +159,20 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-*.json
+# Allow Next.js source directories
+!src/
+!src/lib/
+!src/hooks/
+!src/components/
+
+# Allow Next.js config files
+!package.json
+!package-lock.json
+!tsconfig.json
+!next.config.ts
+!public/data/config.json
+
+# Next.js
+.next/
+out/
+node_modules/

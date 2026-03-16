@@ -1,0 +1,123 @@
+<h2>Dashboard Layout</h2>
+<p class="subtitle">How should the single-page dashboard be structured? All options use your Deep Ocean + Mint theme.</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Vertical Scroll — Sections</h3>
+      <p>Hero header → Bracket tables (3 side-by-side) → Standings timeline chart → Transfers highlights (best/worst inline) → Bench efficiency summary. One long scroll, everything visible.</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-body" style="padding:16px;font-size:12px;">
+          <div style="background:#6EE7B7;color:#0B1120;padding:8px;border-radius:4px;text-align:center;font-weight:bold;margin-bottom:8px;">Drafty 24/25 — FPL Draft League</div>
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <div style="flex:1;background:#142035;padding:8px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:10px;margin-bottom:4px;">GW 1-13 · $50</div>
+              <div style="color:#8B9CB6;font-size:9px;">1. Team A — 450pts</div>
+              <div style="color:#8B9CB6;font-size:9px;">2. Team B — 420pts</div>
+            </div>
+            <div style="flex:1;background:#142035;padding:8px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:10px;margin-bottom:4px;">GW 14-26 · $50</div>
+              <div style="color:#8B9CB6;font-size:9px;">1. Team C — 480pts</div>
+              <div style="color:#8B9CB6;font-size:9px;">2. Team D — 460pts</div>
+            </div>
+            <div style="flex:1;background:#142035;padding:8px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:10px;margin-bottom:4px;">GW 27-38 · $50</div>
+              <div style="color:#8B9CB6;font-size:9px;">In progress...</div>
+            </div>
+          </div>
+          <div style="background:#142035;padding:8px;border-radius:4px;margin-bottom:8px;border:1px solid rgba(110,231,183,0.15);">
+            <div style="color:#6EE7B7;font-size:10px;margin-bottom:4px;">Standings Timeline</div>
+            <div style="height:40px;background:linear-gradient(135deg,rgba(110,231,183,0.1),rgba(125,211,252,0.1));border-radius:2px;"></div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <div style="flex:1;background:#142035;padding:8px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:10px;">Best/Worst Transfers</div>
+            </div>
+            <div style="flex:1;background:#142035;padding:8px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:10px;">Bench Efficiency</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Tab-Based Sections</h3>
+      <p>Header + Bracket tables always visible at top. Below: tabs for "Timeline", "Transfers", "Selection". Keeps the page compact, brackets are always in view.</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-body" style="padding:16px;font-size:12px;">
+          <div style="background:#6EE7B7;color:#0B1120;padding:8px;border-radius:4px;text-align:center;font-weight:bold;margin-bottom:8px;">Drafty 24/25 — FPL Draft League</div>
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <div style="flex:1;background:#142035;padding:6px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:10px;">GW 1-13 · $50</div>
+              <div style="color:#8B9CB6;font-size:9px;">1. Team A</div>
+            </div>
+            <div style="flex:1;background:#142035;padding:6px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:10px;">GW 14-26 · $50</div>
+              <div style="color:#8B9CB6;font-size:9px;">1. Team C</div>
+            </div>
+            <div style="flex:1;background:#142035;padding:6px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:10px;">GW 27-38 · $50</div>
+              <div style="color:#8B9CB6;font-size:9px;">In progress</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:0;margin-bottom:8px;">
+            <div style="flex:1;padding:6px;text-align:center;background:#142035;color:#6EE7B7;font-size:10px;font-weight:bold;border-bottom:2px solid #6EE7B7;">Timeline</div>
+            <div style="flex:1;padding:6px;text-align:center;background:#0B1120;color:#8B9CB6;font-size:10px;">Transfers</div>
+            <div style="flex:1;padding:6px;text-align:center;background:#0B1120;color:#8B9CB6;font-size:10px;">Selection</div>
+          </div>
+          <div style="background:#142035;padding:8px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+            <div style="color:#6EE7B7;font-size:10px;margin-bottom:4px;">Standings Timeline</div>
+            <div style="height:50px;background:linear-gradient(135deg,rgba(110,231,183,0.1),rgba(125,211,252,0.1));border-radius:2px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Dashboard Grid — Everything at Once</h3>
+      <p>Like Invincibles Decoded: bracket cards across the top, then a 2-column grid below with standings chart, cumulative points, transfers, and bench efficiency all visible simultaneously.</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-body" style="padding:16px;font-size:12px;">
+          <div style="background:#6EE7B7;color:#0B1120;padding:8px;border-radius:4px;text-align:center;font-weight:bold;margin-bottom:8px;">Drafty 24/25 — FPL Draft League</div>
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <div style="flex:1;background:#142035;padding:6px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:9px;">GW 1-13</div>
+            </div>
+            <div style="flex:1;background:#142035;padding:6px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:9px;">GW 14-26</div>
+            </div>
+            <div style="flex:1;background:#142035;padding:6px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:9px;">GW 27-38</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <div style="background:#142035;padding:8px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:10px;">Standings Timeline</div>
+              <div style="height:35px;background:rgba(110,231,183,0.08);border-radius:2px;margin-top:4px;"></div>
+            </div>
+            <div style="background:#142035;padding:8px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:10px;">Cumulative Points</div>
+              <div style="height:35px;background:rgba(125,211,252,0.08);border-radius:2px;margin-top:4px;"></div>
+            </div>
+            <div style="background:#142035;padding:8px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:10px;">Best/Worst Transfers</div>
+              <div style="height:35px;background:rgba(110,231,183,0.08);border-radius:2px;margin-top:4px;"></div>
+            </div>
+            <div style="background:#142035;padding:8px;border-radius:4px;border:1px solid rgba(110,231,183,0.15);">
+              <div style="color:#6EE7B7;font-size:10px;">Bench Efficiency</div>
+              <div style="height:35px;background:rgba(125,211,252,0.08);border-radius:2px;margin-top:4px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

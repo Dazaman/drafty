@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ocean: #0B1120;
+  --color-ocean-surface: #142035;
+  --color-mint: #6EE7B7;
+  --color-ice: #7DD3FC;
+  --color-muted: #8B9CB6;
+  --color-bright: #E2E8F0;
+  --color-error: #EF4444;
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background-color: var(--color-ocean);
+  color: var(--color-muted);
+}
