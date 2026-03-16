@@ -1,5 +1,7 @@
 # Drafty
 
+**[Live Demo →](https://drafty-flame.vercel.app/)**
+
 An FPL Draft League analytics dashboard for league **33786** (2024/25 season). Originally built with Streamlit, rebuilt as a Next.js static site.
 
 ## Architecture
@@ -26,7 +28,7 @@ CSV exports             ← written to public/data/
 Next.js static site     ← D3.js charts, Tailwind CSS v4
      │
      ▼
-Vercel / static hosting
+drafty-flame.vercel.app
 ```
 
 GitHub Actions (`weekly_refresh.yaml`) runs the full pipeline every Tuesday at 00:00 UTC, commits the updated DuckDB file and CSVs, then triggers a new static build.
@@ -168,7 +170,7 @@ Steps:
 4. Run `poetry run python drafty/data_pipeline.py --refresh True`
 5. Commit and push the updated `drafty/data/` and `drafty.db` back to `main`
 
-The push to `main` triggers a Vercel deploy which rebuilds the Next.js static export from the fresh CSVs.
+The push to `main` triggers a [Vercel deploy](https://drafty-flame.vercel.app/) which rebuilds the Next.js static export from the fresh CSVs.
 
 ---
 
