@@ -17,7 +17,7 @@ def concat_team_points(con, team_ids):
     joined = con.sql(sql_query).df()
     joined.to_csv("drafty/data/joined.csv", index=False)
     con.sql(
-        "CREATE TABLE IF NOT EXISTS total_points AS FROM read_csv('drafty/data/joined.csv', auto_detect = TRUE);"
+        "CREATE OR REPLACE TABLE total_points AS FROM read_csv('drafty/data/joined.csv', auto_detect = TRUE);"
     )
     logger.info(f"Concatenated points data for {len(team_ids)} teams")
 
@@ -38,7 +38,7 @@ def calc_running_standings(con):
     standings_ts = con.sql(sql_query).df()
     standings_ts.to_csv("drafty/data/standings_ts.csv", index=False)
     con.sql(
-        "CREATE TABLE IF NOT EXISTS standings_ts AS FROM read_csv('drafty/data/standings_ts.csv', auto_detect = TRUE);"
+        "CREATE OR REPLACE TABLE standings_ts AS FROM read_csv('drafty/data/standings_ts.csv', auto_detect = TRUE);"
     )
 
 
@@ -47,7 +47,7 @@ def calc_cumm_points(con):
     cumm_points = con.sql(sql_query).df()
     cumm_points.to_csv("drafty/data/cumm_points.csv", index=False)
     con.sql(
-        "CREATE TABLE IF NOT EXISTS cumm_points AS FROM read_csv('drafty/data/cumm_points.csv', auto_detect = TRUE);"
+        "CREATE OR REPLACE TABLE cumm_points AS FROM read_csv('drafty/data/cumm_points.csv', auto_detect = TRUE);"
     )
 
 
@@ -59,15 +59,16 @@ def calc_blunders(con, gw):
     blunders = con.sql(sql_query).df()
     blunders.to_csv(f"drafty/data/blunders_{gw}.csv", index=False)
     con.sql(
-        f"CREATE TABLE IF NOT EXISTS blunders_{gw} AS FROM read_csv('drafty/data/blunders_{gw}.csv', auto_detect = TRUE);"
+        f"CREATE OR REPLACE TABLE blunders_{gw} AS FROM read_csv('drafty/data/blunders_{gw}.csv', auto_detect = TRUE);"
     )
 
 
 def top_n_transfers(con):
     df_list = []
 
-    for file in os.listdir("drafty/data/."):
-        if file.startswith("blunders"):
+    latest = int(con.sql("SELECT MAX(event) FROM status").fetchone()[0])
+    for file in [f"blunders_{gw}.csv" for gw in range(1, latest + 1)]:
+        if os.path.exists(f"drafty/data/{file}"):
             df = pd.read_csv(f"drafty/data/{file}")
             df_list.append(df)
 
@@ -78,14 +79,14 @@ def top_n_transfers(con):
     top_df.to_csv("drafty/data/top_df.csv", index=False)
 
     con.sql(
-        "CREATE TABLE IF NOT EXISTS top_n_transfers AS FROM read_csv('drafty/data/top_df.csv', auto_detect = TRUE);"
+        "CREATE OR REPLACE TABLE top_n_transfers AS FROM read_csv('drafty/data/top_df.csv', auto_detect = TRUE);"
     )
 
     bottom_df = df_stacked.nsmallest(10, "net_pts")
     bottom_df.to_csv("drafty/data/bottom_df.csv", index=False)
 
     con.sql(
-        "CREATE TABLE IF NOT EXISTS bottom_n_transfers AS FROM read_csv('drafty/data/bottom_df.csv', auto_detect = TRUE);"
+        "CREATE OR REPLACE TABLE bottom_n_transfers AS FROM read_csv('drafty/data/bottom_df.csv', auto_detect = TRUE);"
     )
 
 
@@ -94,12 +95,12 @@ def calc_bench_pts(con):
     bench_pts = con.sql(sql_query).df()
     bench_pts.to_csv("drafty/data/bench_pts.csv", index=False)
     con.sql(
-        "CREATE TABLE IF NOT EXISTS bench_pts AS FROM read_csv('drafty/data/bench_pts.csv', auto_detect = TRUE);"
+        "CREATE OR REPLACE TABLE bench_pts AS FROM read_csv('drafty/data/bench_pts.csv', auto_detect = TRUE);"
     )
 
     grp_sql = read_sql_template("calc_total_bench_pts.sql")
     total_bench_pts = con.sql(grp_sql).df()
     total_bench_pts.to_csv("drafty/data/total_bench_pts.csv", index=False)
     con.sql(
-        "CREATE TABLE IF NOT EXISTS total_bench_pts AS FROM read_csv('drafty/data/total_bench_pts.csv', auto_detect = TRUE);"
+        "CREATE OR REPLACE TABLE total_bench_pts AS FROM read_csv('drafty/data/total_bench_pts.csv', auto_detect = TRUE);"
     )

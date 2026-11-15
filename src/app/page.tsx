@@ -1,177 +1,35 @@
 "use client";
-
-import { useMemo } from "react";
-import { useCsvData, useJsonData } from "@/hooks/useData";
-import type { AppConfig, BracketTeam, StandingsEntry, Transfer, BenchEntry } from "@/lib/types";
-import Header from "@/components/Header";
-import BracketCard from "@/components/BracketCard";
-import StandingsTimeline from "@/components/StandingsTimeline";
-import TransferHighlights from "@/components/TransferHighlights";
-import BenchEfficiency from "@/components/BenchEfficiency";
-
-function mapBracketRow(row: Record<string, string>): { teamName: string; fullName: string; points: number } {
-  return {
-    teamName: row["team_name"] ?? "",
-    fullName: row["full_name"] ?? "",
-    points: parseFloat(row["points"] ?? "0"),
-  };
-}
-
-function mapStandingsRow(row: Record<string, string>): StandingsEntry {
-  return {
-    name: row["name"] ?? "",
-    gw: parseInt(row["gw"] ?? "0"),
-    position: parseInt(row["pos"] ?? "0"),
-  };
-}
-
-function mapTransferRow(row: Record<string, string>): Transfer {
-  return {
-    team: row["team"] ?? "",
-    waiverOrFree: row["waiver_or_free"] ?? "",
-    waiverGw: parseInt(row["waiver_gw"] ?? "0"),
-    nextGw: parseFloat(row["next_gw"] ?? "0"),
-    playerIn: row["player_in"] ?? "",
-    playerInPts: parseFloat(row["player_in_pts"] ?? "0"),
-    playerOut: row["player_out"] ?? "",
-    playerOutPts: parseFloat(row["player_out_pts"] ?? "0"),
-    netPts: parseFloat(row["net_pts"] ?? "0"),
-  };
-}
-
-function mapBenchRow(row: Record<string, string>): BenchEntry {
-  return {
-    name: row["name"] ?? "",
-    benchPts: parseFloat(row["bench_pts"] ?? "0"),
-  };
-}
-
-function DataUnavailable({ label }: { label: string }) {
-  return (
-    <div className="bg-ocean-surface rounded-lg p-3.5 border border-mint/10 text-muted/50 text-sm text-center">
-      {label} — Data unavailable
-    </div>
-  );
-}
+import Link from "next/link";
+import PageFrame, { DataState } from "@/components/PageFrame";
+import LeagueTable from "@/components/LeagueTable";
+import { useLeagueData } from "@/hooks/useLeagueData";
+import { featuredBracket } from "@/lib/league";
+import { weekStory } from "@/lib/journey";
+import { money } from "@/lib/format";
 
 export default function Dashboard() {
-  const { data: config } = useJsonData<AppConfig>("/data/config.json");
-  const { data: bracket1 } = useCsvData("/data/results_1.csv", mapBracketRow);
-  const { data: bracket2 } = useCsvData("/data/results_2.csv", mapBracketRow);
-  const { data: bracket3 } = useCsvData("/data/results_3.csv", mapBracketRow);
-  const { data: standings } = useCsvData("/data/standings_ts.csv", mapStandingsRow);
-  const { data: bestTransfers } = useCsvData("/data/top_df.csv", mapTransferRow);
-  const { data: worstTransfers } = useCsvData("/data/bottom_df.csv", mapTransferRow);
-  const { data: benchData } = useCsvData("/data/total_bench_pts.csv", mapBenchRow);
-
-  const currentGw = useMemo(() => {
-    if (!standings) return 0;
-    return Math.max(...standings.map((s) => s.gw));
-  }, [standings]);
-
-  const bracketResults = useMemo(() => {
-    if (!config) return [];
-    const allBrackets = [bracket1, bracket2, bracket3];
-    const prizes = config.prizes;
-
-    return config.brackets.map((bc, i) => {
-      const raw = allBrackets[i];
-      let status: "completed" | "live" | "upcoming" = "upcoming";
-      if (currentGw > bc.endGw) status = "completed";
-      else if (currentGw >= bc.startGw) status = "live";
-
-      const sorted = raw
-        ? [...raw].sort((a, b) => b.points - a.points)
-        : [];
-
-      const teams: BracketTeam[] = sorted.map((t, rank) => ({
-        name: t.teamName,
-        fullName: t.fullName,
-        points: Math.round(t.points),
-        rank: rank + 1,
-        prize: prizes[String(rank + 1)] ?? 0,
-      }));
-
-      return { label: bc.label, status, teams };
-    });
-  }, [config, bracket1, bracket2, bracket3, currentGw]);
-
-  const earnings = useMemo(() => {
-    const map = new Map<string, number>();
-    bracketResults.forEach((br) => {
-      if (br.status !== "completed") return;
-      br.teams.forEach((t) => {
-        if (t.prize > 0) {
-          map.set(t.name, (map.get(t.name) ?? 0) + t.prize);
-        }
-      });
-    });
-    return Array.from(map.entries()).map(([name, amount]) => ({ name, amount }));
-  }, [bracketResults]);
-
-  const loading = !config || !standings;
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-mint text-sm animate-pulse">Loading data...</div>
+  const league=useLeagueData();
+  const { config,standings,points,periods,currentGw }=league;
+  const latest=standings.filter(row=>row.gw===currentGw).sort((a,b)=>a.position-b.position);
+  const leaders=latest.filter(row=>row.position===1);
+  const leaderPoints=points.find(row=>row.name===leaders[0]?.name && row.gw===currentGw)?.points;
+  const secondPoints=points.find(row=>row.name===latest.find(team=>team.position>1)?.name && row.gw===currentGw)?.points;
+  const bracket=featuredBracket(periods);
+  const completed=periods.filter(period=>period.status==="completed");
+  const pool=(config?.entryFee ?? 0)*(config?.participantCount ?? 0);
+  const unavailable=league.loading || Boolean(league.error) || !standings.length || !config;
+  return <PageFrame eyebrow="THE LEAGUE AT A GLANCE" title="League overview" description="Where everyone stands, what changed, and what comes next.">
+    <DataState loading={league.loading} error={league.error} empty={!standings.length}/>
+    {!unavailable && config && <>
+      <div className="stats-grid">
+        <div className="stat"><span className="stat-label">{leaders.length>1 ? "Joint leaders" : "Leading the season"}</span><strong>{leaders.map(team=>team.name).join(" & ") || "—"}</strong><small>{leaderPoints !== undefined ? `${leaderPoints.toLocaleString()} pts${leaders.length===1 && secondPoints!==undefined ? ` · ${leaderPoints-secondPoints} ahead` : ""}` : "Points unavailable"}</small></div>
+        <Link className="stat stat-link" href={`/competition/#bracket-${bracket?.number ?? 1}`}><span className="stat-label">{bracket?.status==="completed" ? "Latest bracket" : "Current bracket"}</span><strong>Bracket {bracket?.number ?? "—"} <span aria-hidden="true">↗</span></strong><small>{bracket?.label} · {bracket?.status==="completed" ? "Complete · view awards" : bracket?.status==="live" ? "In progress" : "Upcoming"}</small></Link>
+        <Link className="stat stat-link" href="/competition/#winnings"><span className="stat-label">Season prize pool</span><strong>{money(pool,config.currency)} <span aria-hidden="true">↗</span></strong><small>{config.participantCount} managers · {completed.length}/{periods.length} brackets complete</small></Link>
       </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen px-4 py-8">
-      <div className="mx-auto max-w-4xl">
-        <Header currentGw={currentGw} earnings={earnings} />
-
-        {/* Bracket Cards */}
-        <section className="mb-6">
-          <h2 className="text-mint text-[10px] font-semibold uppercase tracking-[2px] mb-2.5">
-            Season Brackets
-          </h2>
-          <div className="flex flex-col md:flex-row gap-2.5">
-            {bracketResults.map((br) => (
-              <BracketCard key={br.label} label={br.label} status={br.status} teams={br.teams} />
-            ))}
-          </div>
-        </section>
-
-        <section className="mb-6">
-          {standings ? (
-            <StandingsTimeline data={standings} />
-          ) : !loading ? (
-            <DataUnavailable label="Standings Timeline" />
-          ) : null}
-        </section>
-
-        <section className="mb-6">
-          {bestTransfers && worstTransfers ? (
-            <TransferHighlights best={bestTransfers} worst={worstTransfers} />
-          ) : !loading ? (
-            <DataUnavailable label="Transfer Highlights" />
-          ) : null}
-        </section>
-
-        <section className="mb-6">
-          {benchData ? (
-            <BenchEfficiency data={benchData} />
-          ) : !loading ? (
-            <DataUnavailable label="Bench Efficiency" />
-          ) : null}
-        </section>
-
-        {/* Footer */}
-        <footer className="mt-8 text-center text-muted/50 text-xs">
-          Data from{" "}
-          <a href="https://draft.premierleague.com" target="_blank" rel="noopener noreferrer" className="text-mint/50 hover:text-mint transition-colors">
-            FPL Draft API
-          </a>
-          {" "}· Built by{" "}
-          <a href="https://github.com/Dazaman" target="_blank" rel="noopener noreferrer" className="text-mint/50 hover:text-mint transition-colors">
-            Danial Azam
-          </a>
-        </footer>
-      </div>
-    </div>
-  );
+      {league.pointsError && <p role="status" className="text-sm mb-4">Points totals couldn’t load. League positions are still available.</p>}
+      <LeagueTable standings={standings} currentGw={currentGw} points={points}/>
+      <section className="overview-story panel section-block"><div><span className="eyebrow">THE LATEST CHAPTER · GW {currentGw}</span><h2>{weekStory(standings,currentGw,Math.min(...standings.map(row=>row.gw)))}</h2><p>See how the table reached this point, week by week.</p><Link className="action-button inline-flex mt-5" href="/journey/">Replay the season →</Link></div><div className="story-motif" aria-hidden="true"><span>01</span><svg viewBox="0 0 250 100"><path d="M0 85 L40 65 L80 75 L120 35 L160 45 L200 10 L250 20" fill="none" stroke="currentColor" strokeWidth="2"/><path d="M0 40 L40 50 L80 20 L120 60 L160 70 L200 50 L250 85" fill="none" stroke="currentColor" strokeWidth="2" opacity=".25"/></svg><span>{String(currentGw).padStart(2,"0")}</span></div></section>
+      <section className="decision-preview"><div className="section-heading"><div><h2>Look behind the points</h2><p>Explore the decisions and competition behind the table.</p></div></div><div className="explore-grid"><Link href="/transfers/" className="explore-card"><span className="eyebrow">TRANSFERS</span><h3>Did the deal pay off? <span>↗</span></h3><p>Review this week’s moves and the season’s biggest gains and losses.</p></Link><Link href="/bench/" className="explore-card"><span className="eyebrow">BENCH DECISIONS</span><h3>What stayed on the bench? <span>↗</span></h3><p>Compare potential points lost and find the positions that cost most.</p></Link></div></section>
+    </>}
+  </PageFrame>;
 }

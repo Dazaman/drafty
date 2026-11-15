@@ -25,22 +25,17 @@ jobs:
         
       - name: Install dependencies
         run: |
-          poetry lock
           poetry install
         
       - name: Run refresh script
         run: |
-          echo "Refreshing the Data"
-          # Remove files but keep directory structure
-          find drafty/data/ -type f -delete || true
-          rm -f drafty.db || true
-          poetry run python drafty/data_pipeline.py --refresh True
+          poetry run python drafty/admin_server.py --refresh-once
           
       - name: Commit and push changes
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add drafty/data/ drafty.db
+          git add drafty/data/ drafty.db public/data/
           git commit -m "Weekly data refresh" || exit 0
           # Modified git push to use token
           git push origin HEAD:main

@@ -1,74 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { csvParse } from "d3";
 
-function parseCsvLine(line: string): string[] {
-  const result: string[] = [];
-  let current = "";
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      inQuotes = !inQuotes;
-    } else if (ch === "," && !inQuotes) {
-      result.push(current.trim());
-      current = "";
-    } else {
-      current += ch;
-    }
-  }
-  result.push(current.trim());
-  return result;
-}
-
-function parseCsv<T>(text: string, mapRow: (row: Record<string, string>) => T): T[] {
-  const lines = text.trim().split("\n");
-  if (lines.length < 2) return [];
-  const headers = parseCsvLine(lines[0]);
-  return lines.slice(1).map((line) => {
-    const values = parseCsvLine(line);
-    const row: Record<string, string> = {};
-    headers.forEach((h, i) => {
-      row[h] = values[i] ?? "";
-    });
-    return mapRow(row);
-  });
+function useFile<T>(path: string, parse: (text: string) => T) {
+  const parser = useRef(parse);
+  useEffect(() => { parser.current = parse; }, [parse]);
+  const [result, setResult] = useState<{ path: string; data: T | null; error: string | null }>({ path: "", data: null, error: null });
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(path, { signal: controller.signal })
+      .then(res => { if (!res.ok) throw new Error(`Failed to load ${path}`); return res.text(); })
+      .then(text => { if (!controller.signal.aborted) setResult({ path, data: parser.current(text), error: null }); })
+      .catch(error => { if (!controller.signal.aborted) setResult({ path, data: null, error: error.message }); });
+    return () => controller.abort();
+  }, [path]);
+  const current = result.path === path;
+  return { data: current ? result.data : null, error: current ? result.error : null, loading: !current };
 }
 
 export function useCsvData<T>(path: string, mapRow: (row: Record<string, string>) => T) {
-  const [data, setData] = useState<T[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch(path)
-      .then((res) => {
-        if (!res.ok) throw new Error(`Failed to fetch ${path}`);
-        return res.text();
-      })
-      .then((text) => setData(parseCsv(text, mapRow)))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [path]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  return { data, loading, error };
+  return useFile(path, text => csvParse(text).map(row => mapRow(row as Record<string, string>)));
 }
-
 export function useJsonData<T>(path: string) {
-  const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch(path)
-      .then((res) => {
-        if (!res.ok) throw new Error(`Failed to fetch ${path}`);
-        return res.json();
-      })
-      .then((json) => setData(json as T))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [path]);
-
-  return { data, loading, error };
+  return useFile<T>(path, text => JSON.parse(text) as T);
 }

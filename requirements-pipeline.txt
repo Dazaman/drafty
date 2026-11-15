@@ -1,0 +1,7 @@
+# The Python pipeline and local admin service (no Streamlit UI required).
+duckdb>=1.0,<2
+pandas>=2.2,<3
+requests>=2.32,<3
+PyYAML>=6,<7
+loguru>=0.7,<1
+Jinja2>=3.1,<4

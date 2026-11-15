@@ -4,6 +4,8 @@ import yaml
 import duckdb
 from loguru import logger
 from typing import List
+from export_frontend import export_frontend
+from configuration import validate_config
 from data_preprocess import (
     fetch_and_load_static_league_data,
     fetch_and_load_live_league_data,
@@ -20,8 +22,6 @@ from data_transform import (
 
 
 def data_pipeline(refresh: bool, league_code: str, brackets: List[str]):
-    con = duckdb.connect("drafty.db")
-
     with duckdb.connect("drafty.db") as con:
         if refresh:
             entries, max_gw, gameweeks = fetch_and_load_static_league_data(
@@ -37,9 +37,8 @@ def data_pipeline(refresh: bool, league_code: str, brackets: List[str]):
                 .df()["entry_id"]
                 .tolist()
             )
-            gameweeks = (
-                con.sql("SELECT DISTINCT event FROM status").df()["event"].tolist()
-            )
+            latest = con.sql("SELECT MAX(event) FROM status").fetchone()[0]
+            gameweeks = list(range(1, int(latest) + 1))
 
         concat_team_points(con=con, team_ids=entries)
         calc_bench_pts(con=con)
@@ -58,7 +57,13 @@ def data_pipeline(refresh: bool, league_code: str, brackets: List[str]):
 def parse_arguments(cli_args: list[str] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--refresh", default=False, type=bool)
+    parser.add_argument(
+        "--refresh",
+        nargs="?",
+        const=True,
+        default=False,
+        type=lambda value: str(value).lower() in {"true", "1", "yes"},
+    )
 
     return parser.parse_args(args=cli_args)
 
@@ -72,7 +77,7 @@ def main(cli_args: List[str]):
 
     # Read the config file
     with open("drafty/config.yaml", "r") as config_file:
-        config = yaml.safe_load(config_file)
+        config = validate_config(yaml.safe_load(config_file))
 
     brackets = config.get("brackets")
     league_code = config.get("league_code")
@@ -85,6 +90,8 @@ def main(cli_args: List[str]):
     os.makedirs("drafty/data/gw", exist_ok=True)  # Changed GW to gw
 
     data_pipeline(refresh=refresh, league_code=league_code, brackets=brackets)
+    export_frontend(config)
+    logger.info("Published frontend CSV exports and config to public/data")
 
 
 if __name__ == "__main__":

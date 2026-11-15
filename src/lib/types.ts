@@ -12,7 +12,33 @@ export interface BracketConfig {
   endGw: number;
 }
 
+export interface SeasonMetadata {
+  label: string;
+  startYear: number;
+  endYear: number;
+  currentGameweek: number;
+  lastFinishedGw: number;
+  totalGameweeks: number;
+  source: string;
+}
+
+export interface ManagerIdentity {
+  id: number;
+  name: string;
+  fullName: string;
+  teamName: string;
+}
+
 export interface AppConfig {
+  managers?: ManagerIdentity[];
+  leagueCode: number;
+  entryFee: number;
+  participantCount: number;
+  seasonPrizes: Record<string, number>;
+  currency: string;
+  season: SeasonMetadata;
+  datasetSeason: SeasonMetadata | null;
+  updatedAt: string;
   brackets: BracketConfig[];
   prizes: Record<string, number>;
 }

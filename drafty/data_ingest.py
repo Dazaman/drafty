@@ -9,7 +9,7 @@ def get_json(json_files, apis) -> None:
         for file, api in zip(json_files, apis):
 
             logger.info(f"Fetching {file} from {api}")
-            response = session.get(api)
+            response = session.get(api, timeout=30)
             response.raise_for_status()  # Raise an exception for HTTP errors
 
             with open(file, "w") as outfile:

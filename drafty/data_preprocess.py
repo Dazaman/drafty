@@ -26,7 +26,7 @@ def load_json_to_table(
             df = pd.json_normalize(data[key])  # noqa: F841
             table = table_name or key
             logger.info(f"Creating table {table} from {file_path}")
-            con.sql(f"CREATE TABLE IF NOT EXISTS {table} AS SELECT * FROM df")
+            con.sql(f"CREATE OR REPLACE TABLE {table} AS SELECT * FROM df")
 
 
 def get_details(
@@ -87,7 +87,8 @@ def fetch_and_load_static_league_data(
 
     # Get entry IDs and gameweeks
     entries, max_gw = get_details(con=con, league_code=league_code)
-    gameweeks = list(range(1, max_gw[0] + 1))
+    latest = max(max_gw, default=0)
+    gameweeks = list(range(1, latest + 1))
 
     # Log entries and latest gameweek
     logger.info(f"Number of entries: {len(entries)}")
@@ -126,7 +127,7 @@ def fetch_and_load_live_league_data(
             logger.info(f"Loading history data for {entry} - , {history_file}")
             load_json_to_table(con, history_file, ["history"], table_name=entry)
             # Drop specific columns and save as CSV
-            history_df = pd.read_sql(f"SELECT * FROM {entry}", con)
+            history_df = con.sql(f"SELECT * FROM {entry}").df()
             history_df = history_df.drop(["rank", "rank_sort"], axis=1)
             history_df.to_csv(f"drafty/data/{entry}/history.csv", index=False)
 
@@ -146,7 +147,7 @@ def fetch_and_load_live_league_data(
     gw_live_df = pd.DataFrame(gw_live_data)
     gw_live_df.to_csv("drafty/data/gw_live.csv", index=False)
     con.sql(
-        "CREATE TABLE IF NOT EXISTS gw_live AS FROM read_csv('drafty/data/gw_live.csv', auto_detect=TRUE)"
+        "CREATE OR REPLACE TABLE gw_live AS FROM read_csv('drafty/data/gw_live.csv', auto_detect=TRUE)"
     )
 
     # Load gameweek event data
@@ -169,5 +170,5 @@ def fetch_and_load_live_league_data(
     )
     gw_event_df.to_csv("drafty/data/gw_event.csv", index=False)
     con.sql(
-        "CREATE TABLE IF NOT EXISTS gw_event AS FROM read_csv('drafty/data/gw_event.csv', auto_detect=TRUE)"
+        "CREATE OR REPLACE TABLE gw_event AS FROM read_csv('drafty/data/gw_event.csv', auto_detect=TRUE)"
     )

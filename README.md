@@ -1,182 +1,103 @@
 # Drafty
 
-**[Live Demo →](https://drafty-flame.vercel.app/)**
+FPL Draft league analytics built with Next.js, React, TypeScript, D3 and Tailwind, backed by a Python/DuckDB pipeline. League ID, gameweek brackets, prize amounts and currency are configurable.
 
-An FPL Draft League analytics dashboard for league **33786** (2024/25 season). Originally built with Streamlit, rebuilt as a Next.js static site.
+[Public site](https://drafty-flame.vercel.app/)
 
-## Architecture
+## Season and data
 
-```
-FPL Draft API
-     │
-     ▼
-data_ingest.py          ← fetches raw league, entry, and gameweek data
-     │
-     ▼
-data_preprocess.py      ← cleans and normalizes into DuckDB tables
-     │
-     ▼
-data_transform.py       ← SQL transforms via DuckDB (standings, bench pts, transfers)
-     │
-     ▼
-drafty.db               ← local DuckDB database
-     │
-     ▼
-CSV exports             ← written to public/data/
-     │
-     ▼
-Next.js static site     ← D3.js charts, Tailwind CSS v4
-     │
-     ▼
-drafty-flame.vercel.app
+The season is derived from the official [FPL Draft bootstrap API](https://draft.premierleague.com/api/bootstrap-static): the first gameweek deadline identifies the season's starting year. There is no hardcoded year or browser-calendar fallback. Refreshes export that metadata alongside the scores to `public/data/config.json`.
+
+`season` describes the current API season; `datasetSeason` describes the API snapshot that produced the cached scores. If they differ, the site explicitly identifies the older score dataset and offers a refresh link. The page title, navigation, header, admin panel and video use this metadata.
+
+## Setup
+
+Use Node.js 22.18+ (Node 24 recommended) and Python 3.11–3.13.
+
+```bash
+npm ci
+python3 -m venv .venv
+.venv/bin/pip install -r requirements-pipeline.txt
+npm run build
+npm run admin
 ```
 
-GitHub Actions (`weekly_refresh.yaml`) runs the full pipeline every Tuesday at 00:00 UTC, commits the updated DuckDB file and CSVs, then triggers a new static build.
+Open [the local admin panel](http://127.0.0.1:8001/admin/). The service also serves the league overview, transfers and bench pages from the built static app.
 
----
+For frontend development, run `npm run dev`. Its Admin page links to the local service; the static Next.js development server does not execute Python jobs itself. Rebuild after editing frontend source to update the UI served by the admin service.
 
-## Data Pipeline
+The original Poetry environment remains supported: `poetry install` and `poetry run python drafty/admin_server.py`.
 
-The pipeline is orchestrated by `drafty/data_pipeline.py` and consists of three modules:
+## Admin panel
 
-| Module | Responsibility |
+- Set the FPL Draft league ID (the number in `/api/league/<id>/details`).
+- Add or remove up to eight brackets and edit their gameweek ranges. Ranges must be ordered, non-overlapping and within GW 1–38.
+- Set per-rank bracket payouts, separate overall-season payouts, the entry fee per manager, and currency (USD, GBP, EUR or PKR). The bracket schedule applies to every bracket. Manager count comes from the exported league data. Admin shows the pool, allocation and any surplus or shortfall; the overview displays the full payout schedule.
+- Choose **Refresh from FPL API** when switching leagues or updating the current season's scores. Otherwise, recalculate the existing database with the new brackets and winnings.
+- Click **Apply configuration & run pipeline**, follow the live log, then open the updated league.
+
+Runs use an isolated temporary workspace. Invalid inputs are rejected; concurrent runs are blocked. Configuration and scores are published only after the pipeline succeeds. Pipeline failures preserve the previously published data. Each replacement file is published atomically. Refreshes update both `public/data/` and the running local static preview's `out/data/`.
+
+The service binds to `127.0.0.1` only, checks the Host header and requires same-origin JSON requests for mutations. It is a local administration tool. A hosted multi-user admin would need a persistent backend, authentication and a job queue; the public deployment remains static. Local changes are not automatically committed or deployed.
+
+## Page flow
+
+The overview prioritizes standings and the latest weekly story. The full replay lives at `/journey/`; bracket results, earned awards and prize rules live together at `/competition/`. Transfers and bench decisions remain separate analysis pages, with weekly moves and practical filters shown before historical highlights. Admin is in a separate management area.
+
+The shared navigation and page-specific next steps connect these jobs. Competition links such as `/competition/#bracket-2` and `/competition/#winnings` open the relevant section directly, and bracket selection works with browser Back. League exports include manager/team identities for consistent table labels.
+
+See [the UX review](docs/ux-review.md) for the page decisions and implemented flows.
+
+## Season journey
+
+The standings journey reveals the race week by week with Play/Pause, replay, previous/next week, scrubbing and playback speed. It shows interpolated paths, the current weekly leaderboard and cumulative points, lead-change milestones, and commentary calculated from recorded positions. Managers can be highlighted individually. Reduced-motion preferences disable playback while retaining manual exploration.
+
+**Download season video** records a branded animated recap in the browser with Canvas and MediaRecorder. It downloads WebM, or MP4 where supported. Keep the tab active while recording; it takes roughly 8–26 seconds. Recording can be cancelled. Browsers without recording support can still play the journey. The recording includes the whole league and uses the score dataset's season.
+
+## Pipeline
+
+```text
+FPL Draft API → Python ingestion/preprocessing → DuckDB
+             → SQL transforms → CSVs + season/config/bracket JSON
+             → Next.js static site
+```
+
+`drafty/config.yaml` is the saved league configuration. The admin writes it after a successful run. For command-line use:
+
+```bash
+# Safe staged full refresh, also used by GitHub Actions
+.venv/bin/python drafty/admin_server.py --refresh-once
+
+# Direct in-place reprocess (still checks the API for current-season metadata)
+.venv/bin/python drafty/data_pipeline.py
+
+# Direct in-place API refresh; prefer the staged runner above
+.venv/bin/python drafty/data_pipeline.py --refresh
+```
+
+Transforms replace derived DuckDB tables on each run so bracket/selection changes reach downstream metrics. Reprocessing covers all cached gameweeks. Transfer highlights only include the dataset's current gameweek range.
+
+| Frontend export | Contents |
 |---|---|
-| `data_ingest.py` | Fetches raw data from the FPL Draft API (league entries, gameweek status, team picks, live scores) |
-| `data_preprocess.py` | Cleans and normalizes raw data; loads static league data (`fetch_and_load_static_league_data`) and per-gameweek live data (`fetch_and_load_live_league_data`) into DuckDB |
-| `data_transform.py` | Runs DuckDB SQL transforms to produce analytics tables: bracket standings, bench efficiency, transfer blunders, running standings, cumulative points |
+| `config.json` | League, season identity, dataset season, refresh timestamp, brackets, currency and prizes |
+| `brackets.json` | All configured bracket standings; number of brackets is not fixed in React |
+| `results_*.csv` | Individual bracket results |
+| `standings_ts.csv` | League positions per manager/week |
+| `cumm_points.csv` | Cumulative points per manager/week |
+| `top_df.csv`, `bottom_df.csv` | Best/worst transfers by next-week net points |
+| `blunders_*.csv` | Transfers by transaction week; unscored results display as pending |
+| `total_bench_pts.csv`, `bench_pts.csv` | Bench losses per manager and position |
 
-### Running the pipeline
+GitHub Actions runs a staged full refresh every Tuesday at 00:00 UTC and commits `drafty/data/`, `drafty.db` and `public/data/`. The push triggers the static Vercel build. Manual `workflow_dispatch` is supported.
 
-```bash
-# From the repo root
-
-# First run / full refresh (re-fetches all data from API)
-poetry run python drafty/data_pipeline.py --refresh True
-
-# Reprocess existing data without hitting the API
-poetry run python drafty/data_pipeline.py
-```
-
-The pipeline reads `drafty/config.yaml` for the league code and bracket definitions, then writes results to `drafty.db` and exports CSVs to `public/data/`.
-
----
-
-## Configuration
-
-`drafty/config.yaml` drives both the pipeline and the frontend.
-
-```yaml
-league_code: 33786
-brackets:
-  "1": ["1", "13"]    # Bracket 1: GW1–GW13
-  "2": ["14", "26"]   # Bracket 2: GW14–GW26
-  "3": ["27", "38"]   # Bracket 3: GW27–GW38
-```
-
-At build time the config is exported to `public/data/config.json` so the Next.js frontend can read it without a server.
-
----
-
-## CSV Outputs
-
-All files are written to `public/data/` and loaded by the frontend at runtime.
-
-| File | Description |
-|---|---|
-| `results_1.csv` | Bracket 1 final standings (GW1–13) |
-| `results_2.csv` | Bracket 2 final standings (GW14–26) |
-| `results_3.csv` | Bracket 3 final standings (GW27–38) |
-| `standings_ts.csv` | League position over time (one row per manager per GW) — powers the standings timeline chart |
-| `top_df.csv` | Best transfers by net points gained |
-| `bottom_df.csv` | Worst transfers (biggest points lost) |
-| `total_bench_pts.csv` | Total bench points left unused per manager — bench efficiency metric |
-
----
-
-## Frontend
-
-| Technology | Version | Role |
-|---|---|---|
-| Next.js | 15+ | Static export (`output: 'export'`) |
-| React | 19 | Component framework |
-| D3.js | 7 | Data-driven charts (standings timeline, bench efficiency) |
-| Tailwind CSS | v4 | Utility-first styling |
-| TypeScript | 5 | Type safety throughout |
-
-### Theme
-
-Deep Ocean base with Mint & Ice accent palette. All design tokens are defined in `src/app/globals.css`.
-
-### Key source paths
-
-```
-src/
-  app/
-    page.tsx            ← root page, composes all sections
-    globals.css         ← Tailwind theme tokens
-  components/           ← BracketCard, StandingsTimeline, BenchEfficiency, TransferHighlights, Header
-  hooks/                ← useCSV, useConfig — data-fetching hooks
-  lib/                  ← shared utilities
-public/data/            ← CSV exports + config.json (pipeline outputs)
-```
-
----
-
-## Development Setup
-
-### Python pipeline
+## Checks
 
 ```bash
-# Install Poetry if not already installed
-pip install poetry
-
-# Install dependencies
-poetry install
-
-# Run pipeline (reprocess existing data)
-poetry run python drafty/data_pipeline.py
-
-# Run pipeline with full API refresh
-poetry run python drafty/data_pipeline.py --refresh True
-```
-
-Requires Python `>=3.11,<3.14`. Key dependencies: `duckdb ^1.0.0`, `pandas ^2.2.2`, `loguru ^0.7.2`.
-
-### Frontend
-
-```bash
-# Install Node dependencies
-npm install
-
-# Start dev server (http://localhost:3000)
-npm run dev
-
-# Build static export
+npm run lint
+npm run typecheck
+npm test
+.venv/bin/python -m unittest discover -s tests -v
 npm run build
 ```
 
----
-
-## Deployment
-
-### GitHub Actions — `weekly_refresh.yaml`
-
-Runs every Tuesday at 00:00 UTC (also supports manual `workflow_dispatch`).
-
-Steps:
-1. Check out the repository
-2. Set up Python 3.11 and install dependencies via Poetry
-3. Delete stale data files (`drafty/data/`, `drafty.db`)
-4. Run `poetry run python drafty/data_pipeline.py --refresh True`
-5. Commit and push the updated `drafty/data/` and `drafty.db` back to `main`
-
-The push to `main` triggers a [Vercel deploy](https://drafty-flame.vercel.app/) which rebuilds the Next.js static export from the fresh CSVs.
-
----
-
-## Ideas / Future Work
-
-- Display current GW team lineups
-- Read directly from DuckDB instead of CSV exports (evaluate size and performance trade-offs)
-- Support multiple leagues via parameterised config
-- Document how to find your own league code
+Tests cover season inference, configuration validation, local admin access checks, concurrent-run prevention, failed-run preservation, export completeness and journey narration/interpolation.
