@@ -50,6 +50,8 @@ See [the UX review](docs/ux-review.md) for the page decisions and implemented fl
 
 ## Season journey
 
+The journey commentary follows the highlighted manager (or a lead change / weekly climber when viewing everyone). It uses reconciled scoring lineups, automatic substitutions, player point shares, and approved transfers evaluated in the following gameweek. Strong transfer returns, standout hauls, and distributed team contributions are distinguished with exact numbers; unavailable evidence falls back to a position update. Expand **Who delivered?** to inspect the scoring XI. The same descriptions appear in exported videos.
+
 The standings journey reveals the race week by week with Play/Pause, replay, previous/next week, scrubbing and playback speed. It shows interpolated paths, the current weekly leaderboard and cumulative points, lead-change milestones, and commentary calculated from recorded positions. Managers can be highlighted individually. Reduced-motion preferences disable playback while retaining manual exploration.
 
 **Download season video** records a branded animated recap in the browser with Canvas and MediaRecorder. It downloads WebM, or MP4 where supported. Keep the tab active while recording; it takes roughly 8–26 seconds. Recording can be cancelled. Browsers without recording support can still play the journey. The recording includes the whole league and uses the score dataset's season.
@@ -79,6 +81,7 @@ Transforms replace derived DuckDB tables on each run so bracket/selection change
 
 | Frontend export | Contents |
 |---|---|
+| `journey.json` | Reconciled manager/week scoring XIs and next-week transfer evidence |
 | `config.json` | League, season identity, dataset season, refresh timestamp, brackets, currency and prizes |
 | `brackets.json` | All configured bracket standings; number of brackets is not fixed in React |
 | `results_*.csv` | Individual bracket results |

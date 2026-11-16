@@ -7,6 +7,7 @@ import shutil
 import tempfile
 import csv
 from season_metadata import load_metadata
+from journey_facts import build_journey_facts
 
 
 def export_frontend(
@@ -68,6 +69,10 @@ def export_frontend(
         for bracket in config["brackets"]:
             with (source / f"results_{bracket}.csv").open() as handle:
                 bracket_rows[bracket] = list(csv.DictReader(handle))
+        (staging / "journey.json").write_text(
+            json.dumps(build_journey_facts(source), ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
         (staging / "brackets.json").write_text(json.dumps(bracket_rows) + "\n")
         with (source / "standings_ts.csv").open() as handle:
             latest_gw = max(

@@ -76,7 +76,7 @@ class ExportFrontendTests(unittest.TestCase):
                     "teamName": "Example FC",
                 },
             )
-            self.assertEqual(len(list(target.iterdir())), len(names) + 2)
+            self.assertEqual(len(list(target.iterdir())), len(names) + 3)
             self.assertFalse((target / "blunders_38.csv").exists())
 
     def test_missing_input_preserves_published_data(self):

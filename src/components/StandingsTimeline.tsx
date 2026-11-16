@@ -2,11 +2,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
 import type { BracketConfig, StandingsEntry } from "@/lib/types";
-import { JOURNEY_COLORS as colors, positionAt, weekSnapshot, weekStory } from "@/lib/journey";
+import { JOURNEY_COLORS as colors, positionAt, weekSnapshot, performanceStory, type JourneyFacts } from "@/lib/journey";
 import { recordJourney, type JourneyRecording } from "@/lib/recordJourney";
 
-type Props = { data: StandingsEntry[]; points: { name: string; gw: number; points: number }[]; brackets: BracketConfig[]; season: string };
-export default function StandingsTimeline({ data, points, brackets, season }: Props) {
+type Props = { facts?: JourneyFacts | null; factsLoading?: boolean; data: StandingsEntry[]; points: { name: string; gw: number; points: number }[]; brackets: BracketConfig[]; season: string };
+export default function StandingsTimeline({ data, points, brackets, season, facts, factsLoading }: Props) {
   const teams = useMemo(()=>[...new Set(data.map(row=>row.name))],[data]);
   const weeks = useMemo(()=>[...new Set(data.map(row=>row.gw))].sort((a,b)=>a-b),[data]);
   const first=weeks[0] ?? 1, last=weeks.at(-1) ?? 1;
@@ -39,6 +39,7 @@ export default function StandingsTimeline({ data, points, brackets, season }: Pr
   const x=d3.scaleLinear().domain([first,Math.max(first+1,last)]).range([36,730]);
   const y=d3.scaleLinear().domain([1,Math.max(2,teams.length)]).range([28,274]);
   const line=d3.line<StandingsEntry>().x(row=>x(row.gw)).y(row=>y(row.position));
+  const story=performanceStory(data,gw,first,facts,selected);
   const snapshot=weekSnapshot(data,gw);
   const previous=weekSnapshot(data,gw-1);
   const milestones=weeks.filter((week,index)=>index===0 || weekSnapshot(data,week).filter(row=>row.position===1).map(row=>row.name).join("|")!==weekSnapshot(data,week-1).filter(row=>row.position===1).map(row=>row.name).join("|"));
@@ -50,12 +51,13 @@ export default function StandingsTimeline({ data, points, brackets, season }: Pr
     try {
       if(typeof MediaRecorder==="undefined")throw new Error("Video export isn’t supported in this browser. You can still play and scrub through the season.");
       setRecording(true);setRecordPercent(0);
-      const result=recordJourney(data,season,setRecordPercent);recordingRef.current=result;await result.done;
+      const result=recordJourney(data,season,setRecordPercent,facts,selected);recordingRef.current=result;await result.done;
     } catch(error){setRecordError(error instanceof Error ? error.message : "Could not record the journey");}
     finally{setRecording(false);recordingRef.current=null;}
   }
   return <div className="panel journey-panel"><div className="section-heading"><div><span className="eyebrow">THE SEASON IN MOTION</span><h2 className="mt-2">Every twist in the title race.</h2><p>Replay the weeks, watch the lead change, and follow your manager.</p></div><button className="text-mint text-xs" disabled={recording || !data.length} onClick={download}>{recording ? `Recording ${recordPercent}%…` : "↓ Download season video"}</button></div>
-    <div className="journey-story"><div><span className="eyebrow">{season} · GAMEWEEK {gw} / {last}</span><h3 aria-live={activePlaying ? "off" : "polite"}>{weekStory(data,gw,first)}</h3></div><div className="journey-stats"><span><strong>{Math.max(0,milestones.length-1)}</strong> lead changes</span><span><strong>{longest?.[0] ?? "—"}</strong> most weeks at the top{longest ? ` · ${longest[1]}` : ""}</span></div></div>
+    <div className="journey-story"><div><span className="eyebrow">{season} · GAMEWEEK {gw} / {last}</span><h3 aria-live={activePlaying ? "off" : "polite"}>{story.headline}</h3><span className="story-kind">{factsLoading ? "Loading the week’s story…" : story.kind}</span><p className="story-description">{factsLoading ? "Checking scoring lineups and next-week transfer returns." : story.description}</p></div><div className="journey-stats"><span><strong>{Math.max(0,milestones.length-1)}</strong> lead changes</span><span><strong>{longest?.[0] ?? "—"}</strong> most weeks at the top{longest ? ` · ${longest[1]}` : ""}</span></div></div>
+    {story.performance && <details className="journey-evidence"><summary>Who delivered? · {story.performance.teamName} · {story.performance.points} pts</summary><p>Scoring XI including automatic substitutions, reconciled to the official weekly total. Transfer comparisons use next-gameweek points.</p><div>{story.performance.players.map(player=><span key={player.id}>{player.name}<strong>{player.points} pts</strong></span>)}</div></details>}
     <div className="journey-controls"><button className="action-button" disabled={reducedMotion || last===first} onClick={()=>{if(activePlaying)setPlaying(false);else{if(value>=last)setProgress(first);setPlaying(true);}}}>{activePlaying ? "Ⅱ Pause" : value>=last ? "▶ Play season" : "▶ Continue"}</button><button onClick={()=>seek(first)} aria-label="Restart journey" title="Restart">↺</button><button onClick={()=>seek(gw-1)} disabled={gw<=first} aria-label="Previous gameweek">←</button><button onClick={()=>seek(gw+1)} disabled={gw>=last} aria-label="Next gameweek">→</button><label className="journey-scrubber">Gameweek {gw}<input aria-label="Journey gameweek" type="range" min={first} max={last} value={gw} step="1" onChange={event=>seek(Number(event.target.value))}/></label><label className="text-xs">Speed<select aria-label="Playback speed" value={speed} onChange={event=>setSpeed(Number(event.target.value))}><option value="0.5">0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label></div>
     {reducedMotion && <p className="text-xs mt-3">Reduced motion is enabled. Use the slider and week buttons to explore at your own pace.</p>}
     <div className="journey-grid"><div className="min-w-0"><div className="overflow-x-auto"><svg viewBox="0 0 860 318" className="w-full min-w-[520px]" role="img" aria-label={`Standings journey through gameweek ${gw}. Use playback controls or the gameweek slider to explore.`}>

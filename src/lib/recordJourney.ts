@@ -1,8 +1,8 @@
 import * as d3 from "d3";
 import type { StandingsEntry } from "@/lib/types";
-import { JOURNEY_COLORS, positionAt, weekSnapshot, weekStory } from "@/lib/journey";
+import { JOURNEY_COLORS, positionAt, weekSnapshot, performanceStory, type JourneyFacts } from "@/lib/journey";
 export type JourneyRecording = { cancel: () => void; done: Promise<void> };
-export function recordJourney(data: StandingsEntry[], season: string, onProgress: (value: number) => void): JourneyRecording {
+export function recordJourney(data: StandingsEntry[], season: string, onProgress: (value: number) => void, facts?: JourneyFacts | null, selected?: string | null): JourneyRecording {
   const type = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm", "video/mp4"].find(value=>MediaRecorder.isTypeSupported(value));
   if (!type) throw new Error("This browser cannot record a supported video format. Use Play season to watch the journey here.");
   const canvas = document.createElement("canvas"); canvas.width=1280; canvas.height=720;
@@ -19,7 +19,12 @@ export function recordJourney(data: StandingsEntry[], season: string, onProgress
     ctx.fillStyle="#101916"; ctx.fillRect(0,0,1280,720);
     ctx.fillStyle="#c5ee96"; ctx.font="bold 24px Arial"; ctx.fillText(`drafty.  /  ${season}`,50,55);
     ctx.fillStyle="#f1f3eb"; ctx.font="bold 36px Arial"; ctx.fillText(`Gameweek ${week}`,50,116);
-    ctx.fillStyle="#a1afa6"; ctx.font="20px Arial"; ctx.fillText(weekStory(data,week,first),50,158,1160);
+    ctx.fillStyle="#a1afa6"; ctx.font="20px Arial"; const story=performanceStory(data,week,first,facts,selected);
+    ctx.fillText(story.headline,50,158,1160);
+    ctx.font="16px Arial";
+    const words=story.description.split(' ');let text='',line=0;
+    for(const word of words){const next=text ? `${text} ${word}` : word;if(ctx.measureText(next).width>1160 && text){ctx.fillText(text,50,188+line*21);line++;text=word;}else text=next;}
+    ctx.fillText(text,50,188+line*21,1160);
     for(let rank=1;rank<=teams.length;rank++) { ctx.strokeStyle="#ffffff12";ctx.beginPath();ctx.moveTo(70,y(rank));ctx.lineTo(940,y(rank));ctx.stroke();ctx.fillStyle="#a1afa6";ctx.font="16px Arial";ctx.fillText(String(rank),38,y(rank)+5); }
     teams.forEach((name,index)=>{
       const rows=data.filter(d=>d.name===name && d.gw<=progress).sort((a,b)=>a.gw-b.gw);
