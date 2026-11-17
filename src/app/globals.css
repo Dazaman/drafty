@@ -201,6 +201,19 @@ main > .min-h-screen { min-height: calc(100vh - 150px); }
 .transfer-highlight > div > span { display: block; font-size: 12px; margin-top: 7px; }
 .transfer-highlight small { font-size: 10px; line-height: 1.8; display: block; margin-top: 5px; }
 .transfer-highlight b { font-weight: 500; text-align: right; }
+.transfer-shortcuts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.transfer-shortcut { display: block; min-width: 0; border: 1px solid #ffffff18; border-radius: 8px; padding: 16px 18px; background: #19241f; }
+.transfer-shortcut:hover { border-color: #c5ee9660; background: #1d2b23; }
+.transfer-shortcut-label { display: flex; justify-content: space-between; gap: 12px; color: #c5ee96; font-size: 11px; }
+.transfer-shortcut > div { display: flex; justify-content: space-between; gap: 14px; align-items: center; margin-top: 10px; }
+.transfer-shortcut strong { color: #edf1e6; font-size: 15px; font-weight: 500; overflow-wrap: anywhere; }
+.transfer-shortcut strong small { display: block; color: #a1afa6; font-size: 11px; margin-top: 4px; }
+.transfer-shortcut b { font-size: 23px; font-weight: 500; text-align: right; flex-shrink: 0; line-height: 1.2; }
+.transfer-shortcut b small { display: block; color: #a1afa6; font-size: 9px; margin-top: 4px; }
+.transfer-shortcut p { font-size: 10px; margin-top: 10px; line-height: 1.6; }
+.transfer-ranking { scroll-margin-top: 24px; }
+.transfer-ranking:target { border-color: #c5ee9660; }
+@media(max-width:760px) { .transfer-shortcuts { grid-template-columns: 1fr; gap: 8px; } .transfer-shortcut { padding: 13px 16px; } .transfer-ranking { scroll-margin-top: 125px; } }
 @media(max-width:1100px) { .app-footer { margin: 0 24px; } .bracket-calendar a { padding: 14px; } .story-motif { min-width: 150px; max-width: 220px; } }
 @media(max-width:760px) {
   .sidebar { position: sticky; top: 0; z-index: 30; padding: 14px 18px 0; }
