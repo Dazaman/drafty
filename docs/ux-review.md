@@ -40,3 +40,9 @@ No extra analytics hub, rules page or dashboard subpage is needed. Navigation gr
 ## Remaining product decision
 
 Prize tie-break rules remain the existing ordered-results behavior. A split-prize policy requires an explicit league rule; this review changes navigation and presentation rather than inventing payout policy.
+
+## Story-led overview
+
+The overview now opens with the real season journey, playing automatically and looping after a five-second hold on the latest week. A compact chart and manager selector lead into the current standings alongside a four-bracket digest and prize pool. Blue, violet and gold surface accents distinguish the three areas without using warning colors for navigation.
+
+The transfer reel rotates through the three highest and three lowest next-week returns, with exact incoming/outgoing scores, manual navigation and a detailed-view link. It pauses on hover or keyboard focus. Both moving sections have pause controls, stop in hidden tabs, and respect reduced-motion preferences; the journey also suspends while offscreen. Full journey evidence, video export, bracket results and transfer filters stay on their dedicated pages.

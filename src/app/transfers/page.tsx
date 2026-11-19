@@ -4,15 +4,9 @@ import PageFrame, { NextSteps } from "@/components/PageFrame";
 import { useLeagueConfig } from "@/components/LeagueProvider";
 import { useCsvData } from "@/hooks/useData";
 import type { Transfer } from "@/lib/types";
+import { mapTransfer } from "@/lib/transfers";
 import { mapStandings } from "@/lib/league";
 
-function mapTransfer(row: Record<string,string>): Transfer {
-  return { team:row.team, waiverOrFree:row.waiver_or_free, waiverGw:Number(row.waiver_gw),
-    nextGw:row.next_gw ? Number(row.next_gw) : NaN, playerIn:row.player_in, playerOut:row.player_out,
-    playerInPts:row.player_in_pts ? Number(row.player_in_pts) : NaN,
-    playerOutPts:row.player_out_pts ? Number(row.player_out_pts) : NaN,
-    netPts:row.net_pts ? Number(row.net_pts) : NaN };
-}
 const isWaiver=(type:string)=>["w","waiver"].includes(type.toLowerCase());
 function NetPoints({value}:{value:number}) {
   return Number.isFinite(value) ? <span className={value>0 ? "text-mint" : value<0 ? "text-error" : "text-bright"}>{value>0 ? "+" : ""}{value}</span> : <span className="pending-label">Pending</span>;

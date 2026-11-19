@@ -1,10 +1,10 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-export default function PageFrame({ eyebrow, title, description, children, action }: {
-  eyebrow: string; title: string; description: string; children: ReactNode; action?: ReactNode;
+export default function PageFrame({ eyebrow, title, description, children, action, className="" }: {
+  eyebrow: string; title: string; description: string; children: ReactNode; action?: ReactNode; className?: string;
 }) {
-  return <div className="min-h-screen"><div className="mx-auto max-w-4xl">
+  return <div className={`min-h-screen ${className}`}><div className="mx-auto max-w-4xl">
     <div className="page-intro"><div><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p>{description}</p></div>{action}</div>
     {children}
   </div></div>;
