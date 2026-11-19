@@ -41,13 +41,54 @@ export function performanceStory(data: StandingsEntry[], gw: number, firstGw: nu
   const change=(previous.find(p=>p.name===focus)?.position ?? position)-position;
   const headline=!row ? weekStory(data,gw,firstGw) : gw===firstGw ? `${focus} ${position===1 ? 'sets the opening pace' : `opens in ${ordinal} place`}.` : change>0 ? `${focus} ${position===1 ? (leaders.length>1 ? 'joins the leaders' : 'takes the lead') : `climbs ${change} ${change===1?'place':'places'} to ${ordinal}`}.` : change<0 ? `${focus} slips ${-change} ${change===-1?'place':'places'} to ${ordinal}.` : `${focus} ${position===1 ? (leaders.length>1 ? 'shares the lead' : 'holds the lead') : `holds ${ordinal} place`}.`;
   const fallback={headline,description:`Player-level evidence isn’t available for ${focus ?? 'this manager'} in GW ${gw}. Showing the recorded league position.`,kind:'Position update',performance:null};
-  if(!performance || !performance.players.length) return fallback;
+  if(!row || !performance || !performance.players.length) return fallback;
   const sorted=[...performance.players].sort((a,b)=>b.points-a.points);
   const top=sorted[0], share=performance.points>0 ? top.points/performance.points : 0;
   const move=[...performance.transfers].sort((a,b)=>b.netPts-a.netPts).find(move=>move.netPts>=8 && move.playerInPts>=8);
-  if(move) return {headline,kind:'A transfer that paid off',performance,description:`${move.playerIn} delivered ${move.playerInPts} points after joining in GW ${move.transactionGw} — ${move.netPts} more than ${move.playerOut} scored in GW ${gw}. ${performance.teamName} finished the week on ${performance.points} points.`};
-  if(top.points>=10 && share>=0.35) return {headline,kind:'Standout haul',performance,description:`${top.name} supplied ${top.points} of ${performance.teamName}’s ${performance.points} points (${Math.round(share*100)}%).${top.goals || top.assists ? ` ${top.goals} ${top.goals===1?'goal':'goals'} and ${top.assists} ${top.assists===1?'assist':'assists'} from the standout scorer.` : ''}`};
+  const manager=row.name;
+  const place=['','first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth'][position] ?? ordinal;
+  const shared=position===1 && leaders.length>1;
+  const destination=position===1 ? (shared ? 'a share of the lead' : 'the summit') : `${place} place`;
+  const opening=gw===firstGw;
+  const report=(title:string,kind:string,description:string)=>({headline:title,kind,performance,description});
+  if(move) {
+    const title=change<0
+      ? `${move.playerIn} delivers ${move.playerInPts}, but even a +${move.netPts} transfer swing can’t stop ${manager} slipping to ${place}`
+      : change>0
+        ? `${manager}’s ${move.playerIn} call pays off: a +${move.netPts} transfer swing helps secure ${destination}`
+        : `${move.playerIn} rewards ${manager}’s faith: ${move.playerInPts} points from the new arrival, +${move.netPts} on the swap`;
+    return report(title,'A transfer that paid off',`${move.playerIn} delivered ${move.playerInPts} points after joining in GW ${move.transactionGw} — ${move.netPts} more than ${move.playerOut} scored in GW ${gw}. ${performance.teamName} finished the week on ${performance.points} points.`);
+  }
+  if(top.points>=10 && share>=0.35) {
+    const title=change<0
+      ? `${top.name}’s ${top.points}-point haul can’t halt ${manager}’s slide to ${place}`
+      : opening
+        ? `${top.name} lays down a marker: ${top.points} points as ${manager} opens ${position===1 ? shared ? 'with a share of the lead' : 'on top' : `in ${place}`}`
+        : change>0
+          ? `${manager} rides ${top.name}’s ${top.points}-point masterclass ${position===1 ? shared ? 'into a share of the lead' : 'to the summit' : `into ${place}`}`
+          : `${top.name} steals the show: ${top.points} of ${performance.teamName}’s ${performance.points} points as ${manager} ${position===1 ? shared ? 'shares top spot' : 'stays on top' : `holds ${place}`}`;
+    return report(title,'Standout haul',`${top.name} supplied ${top.points} of ${performance.teamName}’s ${performance.points} points (${Math.round(share*100)}%).${top.goals || top.assists ? ` ${top.goals} ${top.goals===1?'goal':'goals'} and ${top.assists} ${top.assists===1?'assist':'assists'} from the standout scorer.` : ''}`);
+  }
   const returns=sorted.filter(p=>p.points>=5).length;
-  if(performance.points>0 && returns>=4 && share<0.3) return {headline,kind:'A team effort',performance,description:`${returns} players returned at least five points for ${performance.teamName}’s ${performance.points}-point week. ${top.name} led with ${top.points} — about ${Math.round(share*100)}% of the total.`};
-  return {headline,kind:'The weekly performance',performance,description:`${performance.teamName} scored ${performance.points} points in GW ${gw}. ${top.name} led the scoring with ${top.points}${sorted[1] ? `, followed by ${sorted[1].name} (${sorted[1].points})` : ''}.`};
+  if(performance.points>0 && returns>=4 && share<0.3) {
+    let title:string;
+    if(opening) title=`${manager}’s opening statement: ${top.name} leads a ${performance.points}-point team effort ${position===1 ? shared ? 'for a share of the lead' : 'to top spot' : `for ${place} place`}`;
+    else if(change<0) title=`${returns} players deliver, yet ${manager} slips to ${place} despite a ${performance.points}-point team effort`;
+    else if(change>0 && position===1) title=`Strength in numbers ${shared ? 'brings' : 'puts'} ${manager} ${shared ? 'level at the top' : 'on top'}: ${returns} players chip in for ${performance.points} points`;
+    else if(change>=3) title=`${top.name}’s ${top.points}-point haul sparks ${manager}’s ${change}-place surge after a ${performance.points}-point team effort`;
+    else if(change===2) title=`${manager} finds strength in numbers: ${returns} players step up in a ${performance.points}-point push to ${place}`;
+    else if(change>0 && returns>=6) title=`${manager} shares the workload: ${returns} players step up as ${performance.teamName} moves into ${place}`;
+    else if(change>0) title=`${top.name} leads with ${top.points} as ${manager} turns a ${performance.points}-point team effort into ${place} place`;
+    else title=`${manager} ${position===1 ? shared ? 'shares the summit' : 'keeps the pack at bay' : `holds ${place}`}: ${returns} players step up in a ${performance.points}-point team effort`;
+    return report(title,'A team effort',`${returns} players returned at least five points for ${performance.teamName}’s ${performance.points}-point week. ${top.name} led with ${top.points} — about ${Math.round(share*100)}% of the total.`);
+  }
+  const cast=sorted[1] ? `${top.name} and ${sorted[1].name}` : top.name;
+  const title=opening
+    ? `${cast} set${sorted[1] ? '' : 's'} the tone: ${manager} opens ${position===1 ? shared ? 'with a share of the lead' : 'on top' : `in ${place}`} with ${performance.points} points`
+    : change<0
+      ? `${top.name} delivers ${top.points}, but ${manager} loses ground after a ${performance.points}-point week`
+      : change>0
+        ? `${cast} provide${sorted[1] ? '' : 's'} the lift as ${manager} ${position===1 ? shared ? 'joins the leaders' : 'takes top spot' : `moves into ${place}`} with a ${performance.points}-point week`
+        : `${top.name} leads with ${top.points} as ${manager} ${position===1 ? shared ? 'shares the lead' : 'holds off the chasing pack' : `holds ${place}`} after a ${performance.points}-point week`;
+  return report(title,'The weekly performance',`${performance.teamName} scored ${performance.points} points in GW ${gw}. ${top.name} led the scoring with ${top.points}${sorted[1] ? `, followed by ${sorted[1].name} (${sorted[1].points})` : ''}.`);
 }

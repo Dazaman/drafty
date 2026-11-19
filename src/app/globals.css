@@ -388,3 +388,10 @@ main > .min-h-screen { min-height: calc(100vh - 150px); }
 @keyframes reveal-transfer { from { opacity: .3; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
 .spotlight-slide { animation: reveal-transfer .4s ease-out; }
 @media(max-width:760px) { .journey-hero .journey-controls button[aria-label="Restart journey"] { display: none; } }
+.bracket-podium { display: grid; gap: 6px; margin-top: 9px; }
+.bracket-podium li { display: grid; grid-template-columns: 49px minmax(0,1fr) auto; align-items: baseline; gap: 6px; font-size: 10px; line-height: 1.5; }
+.bracket-podium-label { color: #ac9acb; font-size: 9px; }
+.bracket-podium-name { color: #d9e0d7; overflow-wrap: anywhere; }
+.bracket-podium-points { color: #bfc9bc; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.bracket-digest > a:has(.bracket-podium) { align-items: start; }
+.bracket-digest > a:has(.bracket-podium) > .period-status { margin-top: 2px; }
