@@ -1,5 +1,5 @@
 import type { StandingsEntry } from "@/lib/types";
-export const JOURNEY_COLORS = ["#c5ee96", "#9fcbd0", "#d8a2bc", "#eac27d", "#b6a4de", "#eea181", "#8db6a0", "#a9bbee"];
+export const JOURNEY_COLORS = ["#e9c77c", "#a7bdd9", "#d5a6be", "#c3b3df", "#a8c5b2", "#dfab8b", "#b7bb85", "#b8c9e9"];
 export function weekSnapshot(data: StandingsEntry[], gw: number) {
   return data.filter(row => row.gw === gw).sort((a,b) => a.position-b.position || a.name.localeCompare(b.name));
 }

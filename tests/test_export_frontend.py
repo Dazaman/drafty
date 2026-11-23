@@ -43,6 +43,7 @@ class ExportFrontendTests(unittest.TestCase):
             (source / "details.json").write_text(
                 json.dumps(
                     {
+                        "league": {"name": "The Test League"},
                         "league_entries": [
                             {
                                 "entry_id": 1,
@@ -67,6 +68,7 @@ class ExportFrontendTests(unittest.TestCase):
             self.assertEqual(exported["entryFee"], 175)
             self.assertEqual(exported["seasonPrizes"], {"1": 500, "2": 340, "3": 200})
             self.assertEqual(exported["participantCount"], 1)
+            self.assertEqual(exported["leagueName"], "The Test League")
             self.assertEqual(
                 exported["managers"][0],
                 {

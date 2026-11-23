@@ -14,7 +14,7 @@ export default function CompetitionPage() {
   const selected=league.periods.find(period=>period.number===requested) ?? featuredBracket(league.periods);
   const awards=bracketAwards(league.periods);
   const earned=awards.reduce((sum,row)=>sum+row.amount,0);
-  return <PageFrame eyebrow="THE COMPETITION" title="Brackets & winnings" description="Each stage starts fresh. Follow the results, earned awards, and prize rules.">
+  return <PageFrame eyebrow="THE COMPETITION" title="Brackets & winnings" description="Fresh starts. Prize places. This is where the bragging rights add up.">
     <DataState loading={league.loading} error={league.error}/>
     {!league.loading && !league.error && league.config && <>
       <nav className="page-contents" aria-label="On this page"><a href="#brackets">Bracket results ↓</a><a href="#awards">Earned awards ↓</a><a href="#winnings">Prize rules ↓</a></nav>

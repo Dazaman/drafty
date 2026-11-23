@@ -48,3 +48,9 @@ The overview now opens with the real season journey, playing automatically and l
 The transfer reel rotates through the three highest and three lowest next-week returns, with exact incoming/outgoing scores, manual navigation and a detailed-view link. It pauses on hover or keyboard focus. Both moving sections have pause controls, stop in hidden tabs, and respect reduced-motion preferences; the journey also suspends while offscreen. Full journey evidence, video export, bracket results and transfer filters stay on their dedicated pages.
 
 Timeline headlines now lead with the scorer, transfer return or collective performance behind the week, with different wording for opening weeks, rises, slips, unchanged positions and shared leads. Missing player evidence retains the recorded-position fallback. The same headlines are used in the overview, full journey and video export. Completed bracket digests show both winner and runner-up with points; live brackets use provisional “Leading” and “Second” labels.
+
+## League identity
+
+The API’s “Nomi/Kumail Funding Scheme” name anchors the Funding Scheme identity. A custom FS shield, eight crest details, old gold and ink-violet surfaces, editorial serif headings and restrained league humour replace the generic Drafty presentation. Manager initials link to the standings; supporting pages, chart colours, video labels, browser icons and social previews share the identity. Drafty remains the underlying app credit.
+
+The exporter publishes `leagueName` from `details.json`, so subsequent refreshes preserve the API-sourced league identity. Shared copy lives in `src/lib/brand.ts`; editable SVG artwork and a PNG share card live in `public/brand/`. No external font service or new UI dependency is required.

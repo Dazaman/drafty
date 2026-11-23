@@ -7,6 +7,8 @@ import TransferSpotlight from "@/components/TransferSpotlight";
 import { useLeagueData } from "@/hooks/useLeagueData";
 import { useJsonData } from "@/hooks/useData";
 import type { JourneyFacts } from "@/lib/journey";
+import { BRAND } from "@/lib/brand";
+import { JOURNEY_COLORS } from "@/lib/journey";
 import { money } from "@/lib/format";
 
 export default function Dashboard() {
@@ -15,12 +17,12 @@ export default function Dashboard() {
   const { config,standings,points,periods,currentGw }=league;
   const pool=(config?.entryFee ?? 0)*(config?.participantCount ?? 0);
   const unavailable=league.loading || Boolean(league.error) || !standings.length || !config;
-  return <PageFrame className="overview-page" eyebrow="YOUR LEAGUE, UNFOLDING" title="The race. The rewards. The decisions." description="Watch the story, then catch up on where everyone stands.">
+  return <PageFrame className="overview-page" eyebrow={config?.leagueName ?? BRAND.name} title="Another week. Same suspects." description={config ? `${config.participantCount} managers. ${config.season.totalGameweeks} gameweeks. Every decision up for discussion.` : "Football. Friendship. Questionable decisions."} action={config?.managers?.length ? <a className="members-strip" href="#league-table"><span>THE USUAL SUSPECTS</span><div>{config.managers.map(manager=><span role="img" aria-label={`${manager.fullName} · ${manager.teamName}`} title={`${manager.fullName} · ${manager.teamName}`} key={manager.id} style={{color:JOURNEY_COLORS[[...new Set(standings.map(row=>row.name))].indexOf(manager.name)%JOURNEY_COLORS.length]}}>{manager.fullName.split(" ").map(word=>word[0]).slice(0,2).join("")}</span>)}</div></a> : undefined}>
     <DataState loading={league.loading} error={league.error} empty={!standings.length}/>
     {!unavailable && config && <>
       <StandingsTimeline compact autoPlay facts={facts.data} factsLoading={facts.loading} data={standings} points={points} brackets={config.brackets} season={config.datasetSeason?.label ?? config.season.label}/>
       {league.pointsError && <p role="status" className="text-sm mb-4">Points totals couldn’t load. League positions are still available.</p>}
-      <div className="overview-competition">
+      <div id="league-table" className="overview-competition">
         <LeagueTable standings={standings} currentGw={currentGw} points={points}/>
         <section className="panel compact-brackets section-block"><div className="section-heading"><div><span className="eyebrow">FOUR CHAPTERS · ONE SEASON</span><h2>Brackets & rewards</h2></div><Link href="/competition/" className="text-xs text-mint">All results ↗</Link></div>
           <div className="compact-pool"><div><span>Season prize pool</span><strong>{money(pool,config.currency)}</strong></div><small>{config.participantCount} managers<br/>{money(config.entryFee,config.currency)} per entry</small></div>
@@ -29,7 +31,7 @@ export default function Dashboard() {
         </section>
       </div>
       <TransferSpotlight/>
-      <Link href="/bench/" className="bench-prompt"><span aria-hidden="true">▥</span><div><strong>Another story on the bench</strong><p>See which lineup decisions left points behind.</p></div><span aria-hidden="true">↗</span></Link>
+      <Link href="/bench/" className="bench-prompt"><span aria-hidden="true">▥</span><div><strong>The points you’ll hear about on Monday</strong><p>See which lineup decisions left points behind.</p></div><span aria-hidden="true">↗</span></Link>
     </>}
   </PageFrame>;
 }

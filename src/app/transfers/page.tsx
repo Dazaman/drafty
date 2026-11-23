@@ -42,7 +42,7 @@ export default function TransfersPage() {
   const filtered=useMemo(()=>(weekly.data ?? []).filter(row=>(!team || row.team===team) && (kind==="all" || isWaiver(row.waiverOrFree)===(kind==="waiver"))).sort((a,b)=>(Number.isFinite(b.netPts)?b.netPts:-Infinity)-(Number.isFinite(a.netPts)?a.netPts:-Infinity)),[weekly.data,team,kind]);
   const relatedManager=config?.managers?.find(manager=>manager.teamName===team);
   const pending=filtered.filter(row=>!Number.isFinite(row.netPts)).length;
-  return <PageFrame eyebrow="DECISION ANALYSIS" title="Transfers" description="Who came in, who went out, and whether the swap paid off.">
+  return <PageFrame eyebrow="DECISION ANALYSIS" title="Transfers" description="The inspired pickups, the panic buys, and the ones we’d rather forget.">
     <nav className="transfer-shortcuts section-block" aria-label="Season transfer highlights">
       <TransferShortcut title="Best transfers" id="best-transfers" rows={bestMoves} loading={best.loading} error={best.error}/>
       <TransferShortcut title="Worst transfers" id="worst-transfers" rows={worstMoves} loading={worst.loading} error={worst.error}/>

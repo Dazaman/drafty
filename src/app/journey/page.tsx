@@ -8,7 +8,7 @@ import { useLeagueData } from "@/hooks/useLeagueData";
 export default function JourneyPage() {
   const league=useLeagueData();
   const facts=useJsonData<JourneyFacts>("/data/journey.json");
-  return <PageFrame eyebrow="HOW WE GOT HERE" title="The season journey" description="Follow the title race through every week, every climb, and every change of leader.">
+  return <PageFrame eyebrow="FROM THE LEAGUE ARCHIVES" title="The season journey" description="The early optimism. The unexpected heroes. The weeks nobody’s letting you forget.">
     <DataState loading={league.loading} error={league.error} empty={!league.standings.length}/>
     {!league.loading && !league.error && league.standings.length>0 && league.config && <>
       {league.pointsError && <p className="text-sm mb-4" role="status">Points totals are unavailable. The position journey is still ready to explore.</p>}

@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { BRAND } from "@/lib/brand";
 import type { StandingsEntry } from "@/lib/types";
 import { JOURNEY_COLORS, positionAt, weekSnapshot, performanceStory, type JourneyFacts } from "@/lib/journey";
 export type JourneyRecording = { cancel: () => void; done: Promise<void> };
@@ -16,16 +17,16 @@ export function recordJourney(data: StandingsEntry[], season: string, onProgress
   function draw(progress: number) {
     if (!ctx) return;
     const week = Math.floor(progress+0.00001);
-    ctx.fillStyle="#101916"; ctx.fillRect(0,0,1280,720);
-    ctx.fillStyle="#c5ee96"; ctx.font="bold 24px Arial"; ctx.fillText(`drafty.  /  ${season}`,50,55);
-    ctx.fillStyle="#f1f3eb"; ctx.font="bold 36px Arial"; ctx.fillText(`Gameweek ${week}`,50,116);
-    ctx.fillStyle="#a1afa6"; ctx.font="20px Arial"; const story=performanceStory(data,week,first,facts,selected);
+    ctx.fillStyle="#17151e"; ctx.fillRect(0,0,1280,720);
+    ctx.fillStyle="#e9c77c"; ctx.font="bold 24px Arial"; ctx.fillText(`${BRAND.name}  /  ${season}`,50,55);
+    ctx.fillStyle="#f3eee5"; ctx.font="bold 36px Arial"; ctx.fillText(`Gameweek ${week}`,50,116);
+    ctx.fillStyle="#ada7b5"; ctx.font="20px Arial"; const story=performanceStory(data,week,first,facts,selected);
     ctx.fillText(story.headline,50,158,1160);
     ctx.font="16px Arial";
     const words=story.description.split(' ');let text='',line=0;
     for(const word of words){const next=text ? `${text} ${word}` : word;if(ctx.measureText(next).width>1160 && text){ctx.fillText(text,50,188+line*21);line++;text=word;}else text=next;}
     ctx.fillText(text,50,188+line*21,1160);
-    for(let rank=1;rank<=teams.length;rank++) { ctx.strokeStyle="#ffffff12";ctx.beginPath();ctx.moveTo(70,y(rank));ctx.lineTo(940,y(rank));ctx.stroke();ctx.fillStyle="#a1afa6";ctx.font="16px Arial";ctx.fillText(String(rank),38,y(rank)+5); }
+    for(let rank=1;rank<=teams.length;rank++) { ctx.strokeStyle="#ffffff12";ctx.beginPath();ctx.moveTo(70,y(rank));ctx.lineTo(940,y(rank));ctx.stroke();ctx.fillStyle="#ada7b5";ctx.font="16px Arial";ctx.fillText(String(rank),38,y(rank)+5); }
     teams.forEach((name,index)=>{
       const rows=data.filter(d=>d.name===name && d.gw<=progress).sort((a,b)=>a.gw-b.gw);
       const position=positionAt(data,name,progress);
@@ -35,7 +36,7 @@ export function recordJourney(data: StandingsEntry[], season: string, onProgress
       if(position!==undefined){ctx.fillStyle=JOURNEY_COLORS[index%JOURNEY_COLORS.length];ctx.beginPath();ctx.arc(x(progress),y(position),5,0,Math.PI*2);ctx.fill();}
     });
     weekSnapshot(data,week).forEach((row,index)=>{ctx.fillStyle=JOURNEY_COLORS[teams.indexOf(row.name)%JOURNEY_COLORS.length];ctx.font="20px Arial";ctx.fillText(`${row.position}  ${row.name}`,1000,245+index*44,235);});
-    ctx.fillStyle="#a1afa6";ctx.font="16px Arial";
+    ctx.fillStyle="#ada7b5";ctx.font="16px Arial";
     [...new Set([first,...d3.ticks(first,last,8).filter(Number.isInteger),last])].forEach(week=>ctx.fillText(String(week),x(week)-7,625));
     ctx.fillText("GAMEWEEK",70,658);ctx.fillText("League position · 1st at the top",920,680);
   }
@@ -49,7 +50,7 @@ export function recordJourney(data: StandingsEntry[], season: string, onProgress
     recorder.onerror=()=>{cancelAnimationFrame(frame);stream.getTracks().forEach(t=>t.stop());reject(new Error("Recording failed. Try playing the journey in this browser."));};
     recorder.onstop=()=>{
       stream.getTracks().forEach(t=>t.stop());
-      if(!cancelled){const blob=new Blob(chunks,{type});const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download=`drafty-${season.replaceAll("/","-")}-journey.${type.startsWith("video/mp4") ? "mp4" : "webm"}`;document.body.append(link);link.click();link.remove();window.setTimeout(()=>URL.revokeObjectURL(url),10000);}
+      if(!cancelled){const blob=new Blob(chunks,{type});const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download=`funding-scheme-${season.replaceAll("/","-")}-journey.${type.startsWith("video/mp4") ? "mp4" : "webm"}`;document.body.append(link);link.click();link.remove();window.setTimeout(()=>URL.revokeObjectURL(url),10000);}
       resolve();
     };
     recorder.start(250);

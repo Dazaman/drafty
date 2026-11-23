@@ -30,8 +30,11 @@ def export_frontend(
     metadata = metadata if metadata is not None else load_metadata(source)
     details_path = source / "details.json"
     managers = []
+    league_name = None
     if details_path.exists():
-        entries = json.loads(details_path.read_text())["league_entries"]
+        details = json.loads(details_path.read_text())
+        entries = details["league_entries"]
+        league_name = details.get("league", {}).get("name")
         participant_count = len(entries)
         managers = [
             {
@@ -48,6 +51,7 @@ def export_frontend(
     frontend_config = {
         **metadata,
         "leagueCode": config["league_code"],
+        "leagueName": league_name,
         "currency": config.get("currency", "USD"),
         "entryFee": config.get("entry_fee", 0),
         "participantCount": participant_count,

@@ -30,6 +30,7 @@ export interface ManagerIdentity {
 }
 
 export interface AppConfig {
+  leagueName?: string | null;
   managers?: ManagerIdentity[];
   leagueCode: number;
   entryFee: number;

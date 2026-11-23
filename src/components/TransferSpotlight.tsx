@@ -29,7 +29,7 @@ export default function TransferSpotlight() {
   const slide=slides[index%slides.length];
   const move=(direction:number)=>{setPaused(true);setIndex(i=>(i+direction+slides.length)%slides.length);};
   return <section className="transfer-spotlight section-block" aria-label="Transfer spotlight" aria-roledescription="carousel" onMouseEnter={()=>setHovered(true)} onMouseLeave={()=>setHovered(false)} onFocusCapture={()=>setFocused(true)} onBlurCapture={event=>{if(!event.currentTarget.contains(event.relatedTarget))setFocused(false);}}>
-    <div className="spotlight-heading"><div><span className="eyebrow">THE TRANSFER REEL</span><h2>Small swaps. Big swings.</h2></div><Link className="spotlight-details" href="/transfers/">Detailed transfer view ↗</Link></div>
+    <div className="spotlight-heading"><div><span className="eyebrow">THE WAIVER WIRE</span><h2>Genius. Until the next gameweek.</h2></div><Link className="spotlight-details" href="/transfers/">Detailed transfer view ↗</Link></div>
     {slide ? <><div key={index} className={`spotlight-slide ${slide.kind}`} aria-live={rotating ? "off" : "polite"} aria-roledescription="slide" aria-label={`${index%slides.length+1} of ${slides.length}`}>
       <div className="spotlight-score"><span>{slide.kind==="gain" ? "A move that paid off" : "The one that got away"}</span><strong>{slide.row.netPts>0 ? "+" : ""}{slide.row.netPts}<small>net points</small></strong></div>
       <div className="spotlight-deal"><p>{slide.row.team} <span>· moved GW {slide.row.waiverGw} · scored GW {slide.row.nextGw}</span></p><h3>{slide.row.playerIn} <span>in for</span> {slide.row.playerOut}</h3><p>{slide.row.playerInPts} points in · {slide.row.playerOutPts} points out <span>· next-gameweek comparison</span></p></div>
