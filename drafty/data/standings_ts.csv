@@ -2,8 +2,8 @@ name,gw,pos
 Kumail,1,1
 Sheheryar,1,2
 Babar,1,3
-Noman,1,4
 Feroze,1,4
+Noman,1,4
 Ammar,1,6
 Faaiz,1,7
 Danial,1,8
@@ -79,3 +79,11 @@ Sheheryar,10,5
 Feroze,10,6
 Danial,10,7
 Faaiz,10,8
+Kumail,11,1
+Babar,11,2
+Noman,11,3
+Sheheryar,11,4
+Feroze,11,5
+Ammar,11,6
+Danial,11,7
+Faaiz,11,8
